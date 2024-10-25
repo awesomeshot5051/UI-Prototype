@@ -1,0 +1,22 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
+}
+
+repositories {
+    mavenCentral()
+}
+
+javafx {
+    version = "22"
+    modules = ['javafx.controls', 'javafx.fxml']
+    platform = 'windows'
+}
+dependencies {
+    // https://mvnrepository.com/artifact/org.json/json
+    implementation("org.json:json:20240303")
+    implementation 'org.eclipse.jgit:org.eclipse.jgit:6.3.0.202209071007-r'
+
+}
+mainClassName = 'UIPrototypeMainClass'
