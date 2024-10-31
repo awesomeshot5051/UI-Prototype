@@ -39,7 +39,8 @@ public class FirstPage extends Application {
     private JButton clearButton;
     private JButton submitButton;
     private JFormattedTextField phoneNumberField;
-
+    private JComboBox<String> stateDropdown;
+    private JSpinner yearsAtAdd;
 
     FirstPage() {
         setupUI();
@@ -71,7 +72,23 @@ public class FirstPage extends Application {
     }
 
     private void setupUI() {
-        BorderPane borderPane = new BorderPane();
+        String[] states = {"Alabama", "Alaska", "Arizona", "Arkansas", "California",
+                "Colorado", "Connecticut", "Delaware", "Florida", "Georgia",
+                "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas",
+                "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts",
+                "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana",
+                "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico",
+                "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma",
+                "Oregon", "Pennsylvania", "Rhode Island", "South Carolina",
+                "South Dakota", "Tennessee", "Texas", "Utah", "Vermont",
+                "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"};
+
+        stateDropdown = new JComboBox<>(states);
+        SpinnerNumberModel spinnerModel = new SpinnerNumberModel(5, 0, 95, 1);
+        yearsAtAdd = new JSpinner(spinnerModel);
+
+//        JTextField textfield = new JTextField("Something", 20);
+//        BorderPane borderPane = new BorderPane();
         phoneNumberField = new JFormattedTextField();
         phoneNumberField.setColumns(20);
         phoneNumberField.setValue("");  // Start with empty value
@@ -80,7 +97,10 @@ public class FirstPage extends Application {
         phoneNumberField.addFocusListener(new java.awt.event.FocusAdapter() {
             @Override
             public void focusLost(java.awt.event.FocusEvent evt) {
-                formatPhoneNumber();
+                if (phoneNumberField.getText().isBlank()) {
+                } else {
+                    formatPhoneNumber();
+                }
             }
         });
         // Set the PhoneNumberField max width to 200.0px
@@ -101,7 +121,14 @@ public class FirstPage extends Application {
             boolean isChecked = middleNm.isSelected();
             middleNameLabel.setVisible(isChecked);
             middleName.setVisible(isChecked);
+
+            if (isChecked) {
+                page1Frame.pack();  // Adjust the frame size to fit new content
+            } else {
+                page1Frame.pack();  // Adjust the frame size back to fit reduced content
+            }
         });
+
         middleNameLabel = new JLabel("Middle Name:");
         middleName = new JTextField(20);
         // Initially hide the middle name fields
@@ -158,53 +185,55 @@ public class FirstPage extends Application {
             }
         });
 
-        // Adding components with constraints
+// Adding components with constraints
         gbc.anchor = GridBagConstraints.WEST;
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 1;
-        // Heading
+
+// Heading
         page1Frame.add(headingLabel, gbc);
-        // First Name
+
+// First Name
         gbc.gridy = 1;
         page1Frame.add(firstNameLabel, gbc);
         gbc.gridx = 1;
         page1Frame.add(firstName, gbc);
-        // Middle Name Checkbox (in between First and Last Name)
+
+// Middle Name Checkbox (in between First and Last Name)
         gbc.gridy = 2;
         gbc.gridx = 0;
         page1Frame.add(middleNm, gbc);
-        // Middle Name Label and Field (initially hidden)
+
+// Middle Name Label and Field (initially hidden)
         gbc.gridy = 3;
         gbc.gridx = 0;
         page1Frame.add(middleNameLabel, gbc);
         gbc.gridx = 1;
         page1Frame.add(middleName, gbc);
-        // Last Name
+
+// Last Name
         gbc.gridy = 4;
         gbc.gridx = 0;
         page1Frame.add(lastNameLabel, gbc);
         gbc.gridx = 1;
         page1Frame.add(lastName, gbc);
-        // Phone Number
+
+// Phone Number
         gbc.gridy = 5;
         gbc.gridx = 0;
         page1Frame.add(phoneNumberLabel, gbc);
         gbc.gridx = 1;
-//        page1Frame.(phoneNumberField, gbc);
-//        borderPane.setBottom(phoneNumberField);
-//        page1Frame.setContentPane(borderPane);
-        gbc.gridy = 5;
-        gbc.gridx = 1;
         page1Frame.add(phoneNumberField, gbc);
 
-        // Email
+// Email
         gbc.gridy = 6;
         gbc.gridx = 0;
         page1Frame.add(emailLabel, gbc);
         gbc.gridx = 1;
         page1Frame.add(email, gbc);
-        // Sex Radio Buttons
+
+// Sex Radio Buttons
         gbc.gridy = 7;
         gbc.gridx = 0;
         page1Frame.add(new JLabel("Sex"), gbc);
@@ -214,10 +243,12 @@ public class FirstPage extends Application {
         page1Frame.add(femaleJRadioButton, gbc);
         gbc.gridy = 9;
         page1Frame.add(pntsJRadioButton, gbc);
-        gbc.gridy = 12;
+
+// Current Address
+        gbc.gridy = 10;
         gbc.gridx = 0;
         page1Frame.add(currentAddressLabel, gbc);
-        gbc.gridy = 13;
+        gbc.gridy = 11;
         gbc.gridx = 0;
         page1Frame.add(new JLabel("Number"), gbc);
         gbc.gridx = 1;
@@ -226,7 +257,8 @@ public class FirstPage extends Application {
         page1Frame.add(new JLabel("Street"), gbc);
         gbc.gridx = 3;
         page1Frame.add(streetField, gbc);
-        gbc.gridy = 14;
+
+        gbc.gridy = 12;
         gbc.gridx = 0;
         page1Frame.add(new JLabel("City"), gbc);
         gbc.gridx = 1;
@@ -234,13 +266,19 @@ public class FirstPage extends Application {
         gbc.gridx = 2;
         page1Frame.add(new JLabel("State"), gbc);
         gbc.gridx = 3;
-        page1Frame.add(stateField, gbc);
+        page1Frame.add(stateDropdown, gbc);
         gbc.gridx = 4;
         page1Frame.add(new JLabel("ZIP"), gbc);
         gbc.gridx = 5;
         page1Frame.add(zipField, gbc);
+
+        gbc.gridy = 13;
+        gbc.gridx = 0;
+        page1Frame.add(new JLabel("How many years have you lived at this address?"), gbc);
+        gbc.gridx = 1;
+        page1Frame.add(yearsAtAdd, gbc);
         // Buttons (Clear and Submit)
-        gbc.gridy = 11;
+        gbc.gridy = 25;
         gbc.gridx = 0;
         page1Frame.add(clearButton, gbc);
         gbc.gridx = 1;
@@ -248,10 +286,12 @@ public class FirstPage extends Application {
         clearButton.addActionListener(_ -> {
             clearForm();
         });
-        // Final frame setup
+
+// Final frame setup
         page1Frame.pack();
         page1Frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         page1Frame.setVisible(true);
+
     }
 
     private void submitAndNextPage() {
