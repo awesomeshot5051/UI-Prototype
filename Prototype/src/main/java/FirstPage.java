@@ -208,6 +208,14 @@ public class FirstPage extends Application {
      * </ul>
      */
     private void setupUI() {
+        JPanel centerPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        // Adding components in a more organized manner
+        gbc.gridx = 0;
+        gbc.gridy = 0;
         // Initialize state selection array
         String[] states = {"State", "Alabama", "Alaska", "Arizona", "Arkansas", "California",
                 "Colorado", "Connecticut", "Delaware", "Florida", "Georgia",
@@ -242,6 +250,10 @@ public class FirstPage extends Application {
         phoneNumberField = new JFormattedTextField();
         phoneNumberField.setColumns(20);
         phoneNumberField.setValue("");
+        JPanel phonePanel = new JPanel(new FlowLayout());
+        phonePanel.add(phoneNumberField);
+//        phonePanel.add(phoneTypeDropdown);
+//        phonePanel.add(addPhoneButton);
 
         emailLabel = new JLabel("Email");
         email = new JTextField(20);
@@ -254,6 +266,11 @@ public class FirstPage extends Application {
         radioButtonGroup.add(maleRadioButton);
         radioButtonGroup.add(femaleJRadioButton);
         radioButtonGroup.add(pntsJRadioButton);
+        JPanel genderPanel = new JPanel(new GridLayout(1, 3));
+        genderPanel.add(new JRadioButton("Male"));
+        genderPanel.add(new JRadioButton("Female"));
+        genderPanel.add(new JRadioButton("Prefer not to say"));
+
 
         // Address components
         currentAddressLabel = new JLabel("Current Address:");
@@ -262,19 +279,23 @@ public class FirstPage extends Application {
         cityField = new JTextField(10);
         stateDropdown = new JComboBox<>(states);
         zipField = new JTextField(5);
+        JPanel addressPanel = new JPanel(new GridLayout(3, 2, 5, 5));
+        addressPanel.add(new JLabel("Street Number:"));
+        addressPanel.add(numberField);
+        addressPanel.add(new JLabel("City:"));
+        addressPanel.add(cityField);
+        addressPanel.add(new JLabel("State:"));
+        addressPanel.add(stateDropdown);
+        addressPanel.add(new JLabel("ZIP:"));
+        addressPanel.add(zipField);
 
         // Years at address
-        yearsAtAdd = new ButtonGroup();
-        zeroToFive = new JRadioButton("0-5");
-        sixToTen = new JRadioButton("6-10");
-        elevenToTwenty = new JRadioButton("11-20");
-        twentyToThirty = new JRadioButton("21-30");
-        thirtyPlus = new JRadioButton("30+");
-        yearsAtAdd.add(zeroToFive);
-        yearsAtAdd.add(sixToTen);
-        yearsAtAdd.add(elevenToTwenty);
-        yearsAtAdd.add(twentyToThirty);
-        yearsAtAdd.add(thirtyPlus);
+        JPanel yearsPanel = new JPanel(new GridLayout(1, 5));
+        yearsPanel.add(new JRadioButton("0-5"));
+        yearsPanel.add(new JRadioButton("6-10"));
+        yearsPanel.add(new JRadioButton("11-20"));
+        yearsPanel.add(new JRadioButton("21-30"));
+        yearsPanel.add(new JRadioButton("30+"));
 
         // Action buttons
         clearButton = new JButton("Clear");
@@ -283,7 +304,7 @@ public class FirstPage extends Application {
         // Set up frame
         ImageIcon icon = new ImageIcon("D:\\UI-Prototype\\Prototype\\Icon\\UNFinshedBusiness.png");
         page1Frame.setIconImage(icon.getImage());
-        page1Frame.setLayout(new GridBagLayout());
+//        page1Frame.setLayout(new GridBagLayout());
         page1Frame.setLocationRelativeTo(null);
 
         // Add event listeners
@@ -305,6 +326,9 @@ public class FirstPage extends Application {
 
         submitButton.addActionListener(_ -> submitAndNextPage());
         clearButton.addActionListener(_ -> clearForm());
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(clearButton);
+        buttonPanel.add(submitButton);
 
         // Set up ZIP code validation
         ((AbstractDocument) zipField.getDocument()).setDocumentFilter(new DocumentFilter() {
@@ -321,111 +345,74 @@ public class FirstPage extends Application {
             }
         });
 
-        // Layout setup
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.anchor = GridBagConstraints.WEST;
+        // Main panel and layout adjustments
+        page1Frame.setLayout(new BorderLayout(10, 10));
+        page1Frame.add(headingLabel, BorderLayout.NORTH);
+
+
+        // Adding components in a more organized manner
         gbc.gridx = 0;
         gbc.gridy = 0;
+        centerPanel.add(firstNameLabel, gbc);
+        gbc.gridx = 1;
+        centerPanel.add(firstName, gbc);
+        gbc.gridx = 2;
+        centerPanel.add(middleNm, gbc);
+        gbc.gridx = 1;
+        gbc.gridy++;
+        centerPanel.add(middleName, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy++;
+        centerPanel.add(lastNameLabel, gbc);
+        gbc.gridx = 1;
+        centerPanel.add(lastName, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy++;
+        centerPanel.add(emailLabel, gbc);
+        gbc.gridx = 1;
+        centerPanel.add(email, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy++;
+        centerPanel.add(new JLabel("Gender:"), gbc);
+        gbc.gridx = 1;
+        gbc.gridwidth = 3;
+        centerPanel.add(genderPanel, gbc);
         gbc.gridwidth = 1;
 
-        // Add components in visual order
-        page1Frame.add(headingLabel, gbc);
-
-        gbc.gridy = 1;
-        page1Frame.add(firstNameLabel, gbc);
-        gbc.gridx = 1;
-        page1Frame.add(firstName, gbc);
-
-        gbc.gridy = 2;
         gbc.gridx = 0;
-        page1Frame.add(middleNm, gbc);
-
-        gbc.gridy = 3;
-        page1Frame.add(middleNameLabel, gbc);
+        gbc.gridy++;
+        centerPanel.add(new JLabel("Phone Number:"), gbc);
         gbc.gridx = 1;
-        page1Frame.add(middleName, gbc);
+        gbc.gridwidth = 3;
+        centerPanel.add(phonePanel, gbc);
+        gbc.gridwidth = 1;
 
-        gbc.gridy = 4;
         gbc.gridx = 0;
-        page1Frame.add(lastNameLabel, gbc);
+        gbc.gridy++;
+        centerPanel.add(new JLabel("Address:"), gbc);
         gbc.gridx = 1;
-        page1Frame.add(lastName, gbc);
+        gbc.gridwidth = 3;
+        centerPanel.add(addressPanel, gbc);
+        gbc.gridwidth = 1;
 
-        gbc.gridy = 5;
         gbc.gridx = 0;
-        page1Frame.add(phoneNumberLabel, gbc);
+        gbc.gridy++;
+        centerPanel.add(new JLabel("Years at Address:"), gbc);
         gbc.gridx = 1;
-        page1Frame.add(phoneNumberField, gbc);
+        gbc.gridwidth = 3;
+        centerPanel.add(yearsPanel, gbc);
+        gbc.gridwidth = 1;
 
-        gbc.gridy = 6;
         gbc.gridx = 0;
-        page1Frame.add(emailLabel, gbc);
-        gbc.gridx = 1;
-        page1Frame.add(email, gbc);
+        gbc.gridy++;
+        centerPanel.add(buttonPanel, gbc);
 
-        gbc.gridy = 7;
-        gbc.gridx = 0;
-        page1Frame.add(new JLabel("Sex"), gbc);
-        gbc.gridx = 1;
-        page1Frame.add(maleRadioButton, gbc);
-        gbc.gridy = 8;
-        page1Frame.add(femaleJRadioButton, gbc);
-        gbc.gridy = 9;
-        page1Frame.add(pntsJRadioButton, gbc);
-
-        gbc.gridy = 10;
-        gbc.gridx = 0;
-        page1Frame.add(currentAddressLabel, gbc);
-
-        gbc.gridy = 11;
-        gbc.gridx = 0;
-        page1Frame.add(new JLabel("Number"), gbc);
-        gbc.gridx = 1;
-        page1Frame.add(numberField, gbc);
-        gbc.gridx = 2;
-        page1Frame.add(new JLabel("Street"), gbc);
-        gbc.gridx = 3;
-        page1Frame.add(streetField, gbc);
-
-        gbc.gridy = 12;
-        gbc.gridx = 0;
-        page1Frame.add(new JLabel("City"), gbc);
-        gbc.gridx = 1;
-        page1Frame.add(cityField, gbc);
-        gbc.gridx = 2;
-        page1Frame.add(new JLabel("State"), gbc);
-        gbc.gridx = 3;
-        page1Frame.add(stateDropdown, gbc);
-        gbc.gridx = 4;
-        page1Frame.add(new JLabel("ZIP"), gbc);
-        gbc.gridx = 5;
-        page1Frame.add(zipField, gbc);
-
-        gbc.gridy = 13;
-        gbc.gridx = 0;
-        page1Frame.add(new JLabel("How many years have you lived at this address?"), gbc);
-        gbc.gridx = 1;
-        page1Frame.add(zeroToFive, gbc);
-        gbc.gridy = 14;
-        page1Frame.add(sixToTen, gbc);
-        gbc.gridy = 15;
-        page1Frame.add(elevenToTwenty, gbc);
-        gbc.gridy = 16;
-        page1Frame.add(twentyToThirty, gbc);
-        gbc.gridy = 17;
-        page1Frame.add(thirtyPlus, gbc);
-
-        gbc.gridy = 25;
-        gbc.gridx = 0;
-        page1Frame.add(clearButton, gbc);
-        gbc.gridx = 1;
-        page1Frame.add(submitButton, gbc);
-
-        // Final frame setup
+        page1Frame.add(centerPanel, BorderLayout.CENTER);
         page1Frame.pack();
         page1Frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        page1Frame.setLocationRelativeTo(null);
         page1Frame.setVisible(true);
     }
 
