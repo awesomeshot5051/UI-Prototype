@@ -12,6 +12,9 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 import java.awt.*;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -71,6 +74,20 @@ public class FirstPage extends Application {
     private static final String regex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
     private final JFrame page1Frame = new JFrame("Personal information");
     private final BorderPane parent = new BorderPane();
+    private final StringBuilder errorMessages = new StringBuilder();
+    private final ArrayList<JPanel> phonePanels = new ArrayList<>();
+    private final JButton addPhoneButton = new JButton("Add Phone Number");
+    private final JButton otherPhoneButton = new JButton("Add Phone Number");
+    private final String[] states = {"State", "Alabama", "Alaska", "Arizona", "Arkansas", "California",
+            "Colorado", "Connecticut", "Delaware", "Florida", "Georgia",
+            "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas",
+            "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts",
+            "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana",
+            "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico",
+            "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma",
+            "Oregon", "Pennsylvania", "Rhode Island", "South Carolina",
+            "South Dakota", "Tennessee", "Texas", "Utah", "Vermont",
+            "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"};
     JTextField numberField, streetField, cityField, stateField, zipField;
     private JLabel currentAddressLabel;
     private JLabel headingLabel;
@@ -99,6 +116,15 @@ public class FirstPage extends Application {
     private JRadioButton elevenToTwenty;
     private JRadioButton twentyToThirty;
     private JRadioButton thirtyPlus;
+    private JPanel contactInfoPanel;
+    private GridBagConstraints gbc;
+    //    private JTabbedPane tabbedPane;
+    private JComboBox<String> phoneTypeDropdown;
+    private int number = 8;
+    private JPanel eciPanel;
+    private JPanel addressPanel;
+    private int contactCount = 0; // Counter to limit number of contacts
+    private JButton addContactButton;
 
     /**
      * Default constructor for FirstPage.
@@ -208,25 +234,17 @@ public class FirstPage extends Application {
      * </ul>
      */
     private void setupUI() {
-        JPanel centerPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
+//        page1Frame = new JFrame("Personal Information");
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        JTabbedPane tabbedPane = new JTabbedPane(SwingConstants.TOP);
+        JPanel namePanel = new JPanel(new GridBagLayout());
+        contactInfoPanel = new JPanel(new GridBagLayout());
+        JPanel combinedAddressPanel = new JPanel(new GridBagLayout());
+        gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
 
-        // Adding components in a more organized manner
-        gbc.gridx = 0;
-        gbc.gridy = 0;
         // Initialize state selection array
-        String[] states = {"State", "Alabama", "Alaska", "Arizona", "Arkansas", "California",
-                "Colorado", "Connecticut", "Delaware", "Florida", "Georgia",
-                "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas",
-                "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts",
-                "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana",
-                "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico",
-                "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma",
-                "Oregon", "Pennsylvania", "Rhode Island", "South Carolina",
-                "South Dakota", "Tennessee", "Texas", "Utah", "Vermont",
-                "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"};
 
         // Initialize UI components in order of appearance
         // Header
@@ -241,22 +259,35 @@ public class FirstPage extends Application {
         middleName = new JTextField(20);
         middleNameLabel.setVisible(false);
         middleName.setVisible(false);
+        // Add event listeners
+        middleNm.addActionListener(_ -> {
+            boolean isChecked = middleNm.isSelected();
+            middleNameLabel.setVisible(isChecked);
+            middleName.setVisible(isChecked);
+            page1Frame.pack();
+        });
 
         lastNameLabel = new JLabel("Last Name");
         lastName = new JTextField(20);
 
-        // Contact information
-        phoneNumberLabel = new JLabel("Phone Number");
-        phoneNumberField = new JFormattedTextField();
-        phoneNumberField.setColumns(20);
-        phoneNumberField.setValue("");
-        JPanel phonePanel = new JPanel(new FlowLayout());
-        phonePanel.add(phoneNumberField);
-//        phonePanel.add(phoneTypeDropdown);
-//        phonePanel.add(addPhoneButton);
+        gbc.gridwidth = 1;
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        namePanel.add(firstNameLabel, gbc);
+        gbc.gridx = 1;
+        namePanel.add(firstName, gbc);
 
-        emailLabel = new JLabel("Email");
-        email = new JTextField(20);
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        namePanel.add(middleNm, gbc);
+        namePanel.add(middleNameLabel, gbc);
+        gbc.gridx = 1;
+        namePanel.add(middleName, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        namePanel.add(lastNameLabel, gbc);
+        gbc.gridx = 1;
+        namePanel.add(lastName, gbc);
 
         // Gender selection
         maleRadioButton = new JRadioButton("Male");
@@ -266,10 +297,60 @@ public class FirstPage extends Application {
         radioButtonGroup.add(maleRadioButton);
         radioButtonGroup.add(femaleJRadioButton);
         radioButtonGroup.add(pntsJRadioButton);
-        JPanel genderPanel = new JPanel(new GridLayout(1, 3));
-        genderPanel.add(new JRadioButton("Male"));
-        genderPanel.add(new JRadioButton("Female"));
-        genderPanel.add(new JRadioButton("Prefer not to say"));
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        namePanel.add(new JLabel("Gender"), gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 4;
+        namePanel.add(maleRadioButton, gbc);
+        gbc.gridy = 5;
+        namePanel.add(femaleJRadioButton, gbc);
+        gbc.gridy = 6;
+        namePanel.add(pntsJRadioButton, gbc);
+        tabbedPane.addTab("Name", namePanel);
+
+        contactInfoPanel = new JPanel(new GridBagLayout());
+//        gbc = new GridBagConstraints();
+//        gbc.insets = new Insets(5, 5, 5, 5);
+//        gbc.anchor = GridBagConstraints.WEST;
+
+        // Heading Label
+        gbc.gridy = 0;
+        gbc.gridx = 0;
+        headingLabel = new JLabel("Contact Information");
+        contactInfoPanel.add(headingLabel, gbc);
+
+
+        // Add phone button
+
+        // Email field
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        emailLabel = new JLabel("Email");
+        contactInfoPanel.add(emailLabel, gbc);
+        gbc.gridx = 1;
+        email = new JTextField(20);
+        contactInfoPanel.add(email, gbc);
+        gbc.gridx = 1;
+        gbc.gridy++;
+        // Primary phone number field and label
+        addPhoneField(false, contactInfoPanel, addPhoneButton);
+        gbc.gridy++;
+        addPhoneButton.setToolTipText("Max 8 additions allowed");
+        addPhoneButton.addActionListener(_ -> {
+            addPhoneField(true, contactInfoPanel, addPhoneButton);
+            if (number <= 0) {
+                addPhoneButton.setToolTipText("No more additions allowed!");
+            } else if (number >= 8) {
+                addPhoneButton.setToolTipText("Max " + number + " additions allowed");
+            } else {
+                addPhoneButton.setToolTipText("You have " + number + " additions left");
+            }
+            page1Frame.pack();
+        });
+        contactInfoPanel.add(addPhoneButton, gbc);
+
+        tabbedPane.addTab("Contact Information", contactInfoPanel);
 
 
         // Address components
@@ -279,23 +360,76 @@ public class FirstPage extends Application {
         cityField = new JTextField(10);
         stateDropdown = new JComboBox<>(states);
         zipField = new JTextField(5);
-        JPanel addressPanel = new JPanel(new GridLayout(3, 2, 5, 5));
-        addressPanel.add(new JLabel("Street Number:"));
-        addressPanel.add(numberField);
-        addressPanel.add(new JLabel("City:"));
-        addressPanel.add(cityField);
-        addressPanel.add(new JLabel("State:"));
-        addressPanel.add(stateDropdown);
-        addressPanel.add(new JLabel("ZIP:"));
-        addressPanel.add(zipField);
+        // Create a new panel for the address and years sections
 
-        // Years at address
-        JPanel yearsPanel = new JPanel(new GridLayout(1, 5));
-        yearsPanel.add(new JRadioButton("0-5"));
-        yearsPanel.add(new JRadioButton("6-10"));
-        yearsPanel.add(new JRadioButton("11-20"));
-        yearsPanel.add(new JRadioButton("21-30"));
-        yearsPanel.add(new JRadioButton("30+"));
+//        GridBagConstraints gbc = new GridBagConstraints();
+//        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+// Row 1: Street Number
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        combinedAddressPanel.add(new JLabel("Street Number:"), gbc);
+        gbc.gridx = 1;
+        combinedAddressPanel.add(numberField, gbc);
+
+// Row 2: Street Name
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        combinedAddressPanel.add(new JLabel("Street:"), gbc);
+        gbc.gridx = 1;
+        combinedAddressPanel.add(streetField, gbc);
+
+// Row 3: City
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        combinedAddressPanel.add(new JLabel("City:"), gbc);
+        gbc.gridx = 1;
+        combinedAddressPanel.add(cityField, gbc);
+
+// Row 4: ZIP Code
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        combinedAddressPanel.add(new JLabel("ZIP:"), gbc);
+        gbc.gridx = 1;
+        combinedAddressPanel.add(zipField, gbc);
+
+// Row 5: State Dropdown
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        combinedAddressPanel.add(new JLabel("State:"), gbc);
+        gbc.gridx = 1;
+        combinedAddressPanel.add(stateDropdown, gbc);
+
+// Row 6: Years at Address
+        JPanel yearsPanel = new JPanel(new GridLayout(1, 5, 5, 5));
+        zeroToFive = new JRadioButton("0-5");
+        sixToTen = new JRadioButton("6-10");
+        elevenToTwenty = new JRadioButton("11-20");
+        twentyToThirty = new JRadioButton("21-30");
+        thirtyPlus = new JRadioButton("30+");
+        yearsPanel.add(zeroToFive);
+        yearsPanel.add(sixToTen);
+        yearsPanel.add(elevenToTwenty);
+        yearsPanel.add(twentyToThirty);
+        yearsPanel.add(thirtyPlus);
+
+// Group radio buttons
+        yearsAtAdd = new ButtonGroup();
+        yearsAtAdd.add(zeroToFive);
+        yearsAtAdd.add(sixToTen);
+        yearsAtAdd.add(elevenToTwenty);
+        yearsAtAdd.add(twentyToThirty);
+        yearsAtAdd.add(thirtyPlus);
+
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        gbc.gridwidth = 2;  // Span across both label and field columns
+        combinedAddressPanel.add(new JLabel("Years at Address:"), gbc);
+        gbc.gridy = 6;
+        combinedAddressPanel.add(yearsPanel, gbc);
+        tabbedPane.addTab("Address", combinedAddressPanel);
+//        yearsPanel.add(yearsAtAdd);
 
         // Action buttons
         clearButton = new JButton("Clear");
@@ -307,22 +441,6 @@ public class FirstPage extends Application {
 //        page1Frame.setLayout(new GridBagLayout());
         page1Frame.setLocationRelativeTo(null);
 
-        // Add event listeners
-        middleNm.addActionListener(_ -> {
-            boolean isChecked = middleNm.isSelected();
-            middleNameLabel.setVisible(isChecked);
-            middleName.setVisible(isChecked);
-            page1Frame.pack();
-        });
-
-        phoneNumberField.addFocusListener(new java.awt.event.FocusAdapter() {
-            @Override
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                if (!phoneNumberField.getText().isBlank()) {
-                    formatPhoneNumber();
-                }
-            }
-        });
 
         submitButton.addActionListener(_ -> submitAndNextPage());
         clearButton.addActionListener(_ -> clearForm());
@@ -347,73 +465,207 @@ public class FirstPage extends Application {
 
         // Main panel and layout adjustments
         page1Frame.setLayout(new BorderLayout(10, 10));
-        page1Frame.add(headingLabel, BorderLayout.NORTH);
+//        page1Frame.add(headingLabel, BorderLayout.NORTH);
 
-
-        // Adding components in a more organized manner
-        gbc.gridx = 0;
+//        gbc.gridx = 0;
+//        gbc.gridy++;
+        gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.WEST;
+        eciPanel = new JPanel(new GridBagLayout());
         gbc.gridy = 0;
-        centerPanel.add(firstNameLabel, gbc);
-        gbc.gridx = 1;
-        centerPanel.add(firstName, gbc);
-        gbc.gridx = 2;
-        centerPanel.add(middleNm, gbc);
-        gbc.gridx = 1;
-        gbc.gridy++;
-        centerPanel.add(middleName, gbc);
-
         gbc.gridx = 0;
-        gbc.gridy++;
-        centerPanel.add(lastNameLabel, gbc);
-        gbc.gridx = 1;
-        centerPanel.add(lastName, gbc);
+        addContactButton = new JButton("Add contact");
+        addContactButton.addActionListener(_ -> {
+            if (++contactCount > 2) {
+                addScrollPane(eciPanel);
+            }
+            createEmergencyContactPanel(true, eciPanel);
+        });
 
-        gbc.gridx = 0;
+        createEmergencyContactPanel(false, eciPanel);
         gbc.gridy++;
-        centerPanel.add(emailLabel, gbc);
-        gbc.gridx = 1;
-        centerPanel.add(email, gbc);
+        eciPanel.add(addContactButton, gbc);
 
-        gbc.gridx = 0;
-        gbc.gridy++;
-        centerPanel.add(new JLabel("Gender:"), gbc);
-        gbc.gridx = 1;
-        gbc.gridwidth = 3;
-        centerPanel.add(genderPanel, gbc);
-        gbc.gridwidth = 1;
+        JScrollPane scrollPane = new JScrollPane(eciPanel);
+        scrollPane.setPreferredSize(new Dimension((int) WIDTH, (int) HEIGHT));
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
-        gbc.gridx = 0;
-        gbc.gridy++;
-        centerPanel.add(new JLabel("Phone Number:"), gbc);
-        gbc.gridx = 1;
-        gbc.gridwidth = 3;
-        centerPanel.add(phonePanel, gbc);
-        gbc.gridwidth = 1;
+//        tabbedPane.addTab("Name and number", scrollPane);
+        mainPanel.add(tabbedPane, BorderLayout.CENTER);
+        tabbedPane.addTab("Emergency Contact Information", scrollPane);
+        // Adding components in a more organized manner
+//        mainPanel.add(tabbedPane, BorderLayout.CENTER);
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        gbc.gridx = 0;
-        gbc.gridy++;
-        centerPanel.add(new JLabel("Address:"), gbc);
-        gbc.gridx = 1;
-        gbc.gridwidth = 3;
-        centerPanel.add(addressPanel, gbc);
-        gbc.gridwidth = 1;
-
-        gbc.gridx = 0;
-        gbc.gridy++;
-        centerPanel.add(new JLabel("Years at Address:"), gbc);
-        gbc.gridx = 1;
-        gbc.gridwidth = 3;
-        centerPanel.add(yearsPanel, gbc);
-        gbc.gridwidth = 1;
-
-        gbc.gridx = 0;
-        gbc.gridy++;
-        centerPanel.add(buttonPanel, gbc);
-
-        page1Frame.add(centerPanel, BorderLayout.CENTER);
+        page1Frame.add(tabbedPane, BorderLayout.NORTH);
+        page1Frame.add(mainPanel, BorderLayout.CENTER);
+        page1Frame.setSize((int) WIDTH, (int) HEIGHT);
         page1Frame.pack();
         page1Frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         page1Frame.setVisible(true);
+    }
+
+    private void addScrollPane(JPanel namePanel) {
+        JScrollPane scrollPane = new JScrollPane(namePanel);
+        scrollPane.setPreferredSize(new Dimension((int) WIDTH, (int) HEIGHT));
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+    }
+
+    private void createEmergencyContactPanel(boolean isDuplicate, JPanel panel) {
+        JPanel contactPanel = new JPanel(new GridBagLayout());
+
+        // Email field
+        if (!isDuplicate) {
+            gbc.gridy = 0;
+        } else {
+            gbc.gridx = 0;
+            gbc.gridy++;
+        }
+        contactPanel.add(new JLabel("Email:"), gbc);
+        gbc.gridx = 1;
+        JTextField emailField = new JTextField(20);
+        contactPanel.add(emailField, gbc);
+
+        // Add phone number field
+        gbc.gridy++;
+        JButton newPhoneButton = new JButton("Add Phone Number");
+        newPhoneButton.addActionListener(_ -> addPhoneField(true, contactPanel, newPhoneButton));
+        addPhoneField(false, contactPanel, newPhoneButton);
+        gbc.gridx = 2;
+        contactPanel.add(newPhoneButton, gbc);
+
+        // Address Section
+        gbc.gridx = 0;
+        gbc.gridy++;
+        contactPanel.add(new JLabel("Street Number:"), gbc);
+        gbc.gridx = 1;
+        JTextField numberField = new JTextField(5);
+        contactPanel.add(numberField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy++;
+        contactPanel.add(new JLabel("Street:"), gbc);
+        gbc.gridx = 1;
+        JTextField streetField = new JTextField(15);
+        contactPanel.add(streetField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy++;
+        contactPanel.add(new JLabel("City:"), gbc);
+        gbc.gridx = 1;
+        JTextField cityField = new JTextField(10);
+        contactPanel.add(cityField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy++;
+        contactPanel.add(new JLabel("ZIP:"), gbc);
+        gbc.gridx = 1;
+        JTextField zipField = new JTextField(5);
+        contactPanel.add(zipField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy++;
+        contactPanel.add(new JLabel("State:"), gbc);
+        gbc.gridx = 1;
+        JComboBox<String> stateDropdown = new JComboBox<>(states);
+        contactPanel.add(stateDropdown, gbc);
+
+        // Optional: Remove button for each contact
+        if (isDuplicate) {
+            JButton removeButton = new JButton("Remove Contact");
+            removeButton.addActionListener(e -> {
+                eciPanel.remove(contactPanel);
+                eciPanel.revalidate();
+                eciPanel.repaint();
+                contactCount--;
+                addContactButton.setEnabled(true);
+            });
+            gbc.gridx = 1;
+            gbc.gridy++;
+            contactPanel.add(removeButton, gbc);
+        }
+
+        panel.add(contactPanel, gbc);
+        panel.revalidate();
+        panel.repaint();
+        page1Frame.pack();
+    }
+
+    private void addPhoneField(boolean isDuplicate, JPanel panel, JButton button) {
+        // Create a new panel for the phone field and type dropdown
+        JPanel phonePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+        // Phone number label and field only for the first instance
+        if (!isDuplicate) {
+            phoneNumberLabel = new JLabel("Phone Number");
+            gbc.gridx = 0;
+            gbc.gridy++; // Increment row for each new panel
+            panel.add(phoneNumberLabel, gbc);
+        }
+
+        // Create the phone number field
+        phoneNumberField = new JFormattedTextField();
+        phoneNumberField.setColumns(15);
+        phoneNumberField.setValue("");
+        phoneNumberField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent evt) {
+                if (!phoneNumberField.getText().isBlank()) {
+                    formatPhoneNumber();
+                }
+            }
+        });
+        phonePanel.add(phoneNumberField);
+
+        // Phone type dropdown
+        String[] phoneTypes = {"Home", "Mobile", "Other"};
+        JComboBox<String> phoneTypeDropdown = new JComboBox<>(phoneTypes);
+        phonePanel.add(phoneTypeDropdown);
+
+        // Add remove button if it's a duplicate field
+        if (isDuplicate) {
+            if (number <= 0) {
+                return;
+            } else {
+                JButton removeButton = new JButton("Remove");
+                removeButton.addActionListener(e -> removePhoneField(phonePanel, button, panel));
+                phonePanel.add(removeButton);
+                gbc.gridy++;
+                number--;
+            }
+        }
+
+        // Add phone panel to the list and to the main contact info panel
+        phonePanels.add(phonePanel);
+        gbc.gridx = 1; // Set to the column for the new phone field
+        // Use size for the correct y position (1 for the first field, 2 for the second, etc.)
+
+        // Add the new phone panel to the contact information panel
+        panel.add(phonePanel, gbc);
+//        gbc.gridy++;
+//        contactInfoPanel.add(addPhoneButton, gbc);
+
+        // Refresh the layout
+        panel.revalidate();
+        panel.repaint();
+        page1Frame.pack();
+    }
+
+
+    private void removePhoneField(JPanel phonePanel, JButton button, JPanel panel) {
+        phonePanels.remove(phonePanel);
+        panel.remove(phonePanel);
+        panel.revalidate();
+        panel.repaint();
+        page1Frame.pack();
+        number++;
+        if (number >= 8) {
+            button.setToolTipText("Max " + number + " additions allowed");
+        } else {
+            button.setToolTipText("You have " + number + " additions left");
+        }
     }
 
     /**
@@ -437,21 +689,23 @@ public class FirstPage extends Application {
      * @throws IllegalArgumentException if an invalid regular expression pattern is provided for email validation.
      */
     private void submitAndNextPage() {
-        StringBuilder errorMessages = new StringBuilder();
+
 
         // Check first name
         if (firstName.getText().isEmpty()) {
-            errorMessages.append("First name is required.\n");
+            errorMessages.append("First name is required!\n");
         }
 
         // Check last name
         if (lastName.getText().isEmpty()) {
-            errorMessages.append("Last name is required.\n");
+            errorMessages.append("Last name is required!\n");
         }
 
         // Check phone number
         if (phoneNumberField.getText().isEmpty()) {
-            errorMessages.append("Phone number is required.\n");
+            errorMessages.append("Phone number is required!\n");
+        } else {
+            formatPhoneNumber();
         }
 
         // Check email with regex pattern
@@ -459,43 +713,43 @@ public class FirstPage extends Application {
         String emailText = email.getText();
         Matcher matcher = pattern.matcher(emailText);
         if (emailText.isEmpty()) {
-            errorMessages.append("Email is required.\n");
+            errorMessages.append("Email is required!\n");
         } else if (!matcher.matches()) {
-            errorMessages.append("Email format is invalid.\n");
+            errorMessages.append("Email format is invalid!\n");
         }
 
         // Check gender button group selection
         if (!maleRadioButton.isSelected() && !femaleJRadioButton.isSelected() && !pntsJRadioButton.isSelected()) {
-            errorMessages.append("Please select a gender.\n");
+            errorMessages.append("Please select a gender!\n");
         }
 
         // Check state dropdown selection
         if (Objects.equals(stateDropdown.getSelectedItem(), "State")) {
-            errorMessages.append("Please select a state.\n");
+            errorMessages.append("Please select a state!\n");
         }
 
         // Check current address fields
         if (numberField.getText().isEmpty()) {
-            errorMessages.append("House number is required.\n");
+            errorMessages.append("House number is required!\n");
         }
         if (streetField.getText().isEmpty()) {
-            errorMessages.append("Street is required.\n");
+            errorMessages.append("Street is required!\n");
         }
         if (cityField.getText().isEmpty()) {
-            errorMessages.append("City is required.\n");
+            errorMessages.append("City is required!\n");
         }
         if (zipField.getText().isEmpty()) {
-            errorMessages.append("ZIP code is required.\n");
+            errorMessages.append("ZIP code is required!\n");
         }
 
         // Check years at address button group selection
         if (!zeroToFive.isSelected() && !sixToTen.isSelected() && !elevenToTwenty.isSelected()
                 && !twentyToThirty.isSelected() && !thirtyPlus.isSelected()) {
-            errorMessages.append("Please select years at address.\n");
+            errorMessages.append("Please select years at address!\n");
         }
 
         // Show error messages if any issues were found
-        if (errorMessages.length() > 0) {
+        if (!errorMessages.isEmpty()) {
             JOptionPane.showMessageDialog(page1Frame, errorMessages.toString(), "Input Errors", JOptionPane.ERROR_MESSAGE);
         } else {
             // Proceed if no errors
@@ -505,6 +759,7 @@ public class FirstPage extends Application {
             String phoneNmber = phoneNumberField.getText();
             System.out.println(fName + " " + (mName != null ? mName + " " : "") + lName + " " + phoneNmber);
         }
+        errorMessages.delete(0, errorMessages.length());
     }
 
 
@@ -561,10 +816,13 @@ public class FirstPage extends Application {
                 String formattedNumber = phoneUtil.format(numberProto, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
                 phoneNumberField.setValue(formattedNumber);  // Sets formatted value
             } else {
-                JOptionPane.showMessageDialog(page1Frame, "Invalid phone number!", "Error", JOptionPane.ERROR_MESSAGE);
+//                JOptionPane.showMessageDialog(page1Frame, "Invalid phone number!", "Error", JOptionPane.ERROR_MESSAGE);
+                errorMessages.append("Invalid phone number!\n");
+
             }
         } catch (NumberParseException e) {
-            JOptionPane.showMessageDialog(page1Frame, "Error parsing phone number!", "Error", JOptionPane.ERROR_MESSAGE);
+//            JOptionPane.showMessageDialog(page1Frame, "Error parsing phone number!", "Error", JOptionPane.ERROR_MESSAGE);
+            errorMessages.append("Error parsing phone number!\n");
         }
     }
 }

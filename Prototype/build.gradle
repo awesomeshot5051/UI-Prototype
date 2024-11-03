@@ -23,4 +23,16 @@ dependencies {
     implementation 'com.googlecode.libphonenumber:libphonenumber:8.13.48'
     implementation 'com.dlsc.phonenumberfx:phonenumberfx:1.9.0'
 }
-mainClassName = 'UIPrototypeMainClass'
+tasks.register('Prototype', JavaExec) {
+    group = "application"
+    description = "Run the main class with JavaExecTask"
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'UIPrototypeMainClass'
+}
+//mainClassName = 'UIPrototypeMainClass'
+tasks.register('TestUI', JavaExec) {
+    group = "application"
+    description = "Run the main class with JavaExecTask"
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'TestUI'
+}
