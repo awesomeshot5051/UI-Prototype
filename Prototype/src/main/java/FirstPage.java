@@ -797,11 +797,7 @@ public class FirstPage extends Application {
      * </p>
      */
     private void processValidFormData() {
-        String mName = middleNm.isSelected() ? middleName.getText() : null;
-        String fName = firstName.getText();
-        String lName = lastName.getText();
-//        String phoneNmber = phoneNumberField.getText();
-        System.out.println(fName + " " + (mName != null ? mName + " " : "") + lName + " ");
+        new refrencesForm();
     }
 
 
