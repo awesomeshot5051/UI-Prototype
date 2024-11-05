@@ -233,7 +233,148 @@ public class workExperienceForm extends JFrame {
         }
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new workExperienceForm());
+    private void submitAndNextPage() {
+        errorMessages.setLength(0); // Clear previous error messages
+        Component component = tabbedPane.getComponentAt(1);
+
+        // Iterate over all components in each tab
+        for (Component tab : tabbedPane.getComponents()) {
+            if (tab instanceof JPanel) {
+                validateComponents((JPanel) tab);
+            }
+        }
+
+        // Display error messages if any issues were found
+        if (!errorMessages.isEmpty()) {
+            JOptionPane.showMessageDialog(page1Frame, errorMessages.toString(), "Input Errors", JOptionPane.ERROR_MESSAGE);
+        } else {
+            processValidFormData(); // Process form data if no errors
+        }
+    }
+
+    /**
+     * Validates all components within the specified panel.
+     * <p>
+     * This method checks each component in the panel, verifying text fields for completeness,
+     * formatted text fields (like phone numbers) for correctness, dropdown selections for validity,
+     * and radio buttons for group selection.
+     * </p>
+     *
+     * @param panel The JPanel containing the components to validate.
+     */
+    private void validateComponents(JPanel panel) {
+        for (Component comp : panel.getComponents()) {
+            if (comp instanceof JTextField) {
+                if (comp instanceof JFormattedTextField) {
+                    validateFormattedTextField((JFormattedTextField) comp);
+                } else {
+                    validateTextField((JTextField) comp);
+                }
+            } else if (comp instanceof JComboBox) {
+                validateDropdown((JComboBox<?>) comp);
+            } else if (comp instanceof JPanel) {
+                validateComponents((JPanel) comp); // Recursive call for nested panels
+            } else if (comp instanceof JRadioButton) {
+                if (isButtonInGroup((JRadioButton) comp, radioButtonGroup)) {
+                    validateButtonGroup(radioButtonGroup);
+                } else if (isButtonInGroup((JRadioButton) comp, yearsAtAdd)) {
+                    validateButtonGroup(yearsAtAdd);
+                } else if (isButtonInGroup((JRadioButton) comp, over18)) {
+                    validateButtonGroup(over18);
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Validates a standard JTextField to ensure it is not empty.
+     * <p>
+     * If the field is empty and its name is not "Middle Name," an error message is appended to the errorMessages StringBuilder.
+     * Additionally, if the field is an email field, it validates the format against a specified regex pattern.
+     * </p>
+     *
+     * @param field The JTextField to validate.
+     */
+    private void validateTextField(JTextField field) {
+        if (field.getText().isEmpty() && !Objects.equals(field.getName(), "Middle Name")) {
+            errorMessages.append(field.getName()).append(" is required!\n");
+        } else {
+            if (Objects.equals(field.getName(), "Email")) {
+                Pattern pattern = Pattern.compile(regex);
+                String emailText = email.getText();
+                Matcher matcher = pattern.matcher(emailText);
+                if (emailText.isEmpty()) {
+                    errorMessages.append("Email is required!\n");
+                } else if (!matcher.matches()) {
+                    errorMessages.append("Email format is invalid!\n");
+                }
+            }
+        }
+    }
+
+    /**
+     * Validates a JFormattedTextField (in this case the only JFormattedTextField is the phone number field) to ensure it is not empty.
+     * <p>
+     * If the field is filled, it calls the method to format the phone number.
+     * </p>
+     *
+     * @param field The JFormattedTextField to validate.
+     */
+    private void validateFormattedTextField(JFormattedTextField field) {
+        if (field.getText().isEmpty()) {
+            errorMessages.append("Phone number is required!\n");
+        } else {
+            formatPhoneNumber(field); // Formats if valid
+        }
+    }
+
+    /**
+     * Validates a JComboBox to ensure that a selection is made that is not the default option.
+     * <p>
+     * In this implementation, it checks that the dropdown is not left on the default item "State".
+     * </p>
+     *
+     * @param dropdown The JComboBox to validate.
+     */
+    private void validateDropdown(JComboBox<?> dropdown) {
+        if (Objects.equals(dropdown.getSelectedItem(), "State")) { // Customize for your dropdown
+            errorMessages.append(dropdown.getName()).append(" must be selected!\n");
+        }
+    }
+
+    /**
+     * Validates a ButtonGroup to ensure at least one button is selected.
+     * <p>
+     * If no selection is made, it appends a relevant error message based on the specific button group being checked.
+     * </p>
+     *
+     * @param group The ButtonGroup to validate.
+     */
+    private void validateButtonGroup(ButtonGroup group) {
+        if (group.getSelection() == null) {
+            String message = yearsAtAdd == group ? "Years at Address is required!\n" :
+                    radioButtonGroup == group ? "Gender Selection Required!\n" :
+                            over18 == group ? "You need to say whether you're over 18!\n" : "Unknown selection is required!\n";
+            if (!errorMessages.toString().contains(message)) {
+                errorMessages.append(message);
+            }
+        }
+
+    }
+
+    /**
+     * Processes the form data when all inputs are valid.
+     * <p>
+     * This method retrieves the user's input data, including the first name, middle name (if applicable),
+     * last name, and other information, then prints it to the console for further processing.
+     * </p>
+     */
+    private void processValidFormData() {
+        String mName = middleNm.isSelected() ? middleName.getText() : null;
+        String fName = firstName.getText();
+        String lName = lastName.getText();
+//        String phoneNmber = phoneNumberField.getText();
+        System.out.println(fName + " " + (mName != null ? mName + " " : "") + lName + " ");
     }
 }
