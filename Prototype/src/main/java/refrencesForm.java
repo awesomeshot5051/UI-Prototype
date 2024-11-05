@@ -3,6 +3,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class refrencesForm extends JFrame {
 
@@ -20,10 +23,8 @@ public class refrencesForm extends JFrame {
 
     //JLabes
     private final JLabel headerTitle;
-
-    private int entryNumber = 0; //used to keep track of fields created
-
     private final ArrayList<JPanel> refrenceFieldsList = new ArrayList<>();
+    private int entryNumber = 0; //used to keep track of fields created
 
     public refrencesForm() {
         // Set up main frame
@@ -207,12 +208,10 @@ public class refrencesForm extends JFrame {
         });
     }
 
-//    public static void main(String[] args) {
+    //    public static void main(String[] args) {
 //        SwingUtilities.invokeLater(() -> new refrencesForm());
 //    }
-}
-
-private void submitAndNextPage() {
+    private void submitAndNextPage() {
         errorMessages.setLength(0); // Clear previous error messages
         Component component = tabbedPane.getComponentAt(1);
 
@@ -349,10 +348,5 @@ private void submitAndNextPage() {
      * last name, and other information, then prints it to the console for further processing.
      * </p>
      */
-    private void processValidFormData() {
-        String mName = middleNm.isSelected() ? middleName.getText() : null;
-        String fName = firstName.getText();
-        String lName = lastName.getText();
-//        String phoneNmber = phoneNumberField.getText();
-        System.out.println(fName + " " + (mName != null ? mName + " " : "") + lName + " ");
-    }
+
+}
