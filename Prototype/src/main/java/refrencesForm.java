@@ -114,7 +114,7 @@ public class refrencesForm extends JFrame {
 
         gbc.gridx = 1; // Column 1
         JTextField jobTitleField = new JTextField(10);
-        jobTitleField.setBorder(BorderFactory.createTitledBorder("Title"));
+        jobTitleField.setBorder(BorderFactory.createTitledBorder("Posistion"));
         refrenceFields.add(jobTitleField, gbc);
 
         // Second Row: Start Date, End Date
