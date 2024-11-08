@@ -72,9 +72,9 @@ public class FirstPage extends Application {
     private static final double WIDTH = 640;
     private static final double HEIGHT = 480;
     private static final String regex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+    private final StringBuilder errorMessages;
     private final JFrame page1Frame = new JFrame("Personal information");
     private final BorderPane parent = new BorderPane();
-    private final StringBuilder errorMessages = new StringBuilder();
     private final ArrayList<JPanel> phonePanels = new ArrayList<>();
     private final JButton addPhoneButton = new JButton("Add Phone Number");
     private final String[] states = {"State", "Alabama", "Alaska", "Arizona", "Arkansas", "California",
@@ -125,6 +125,7 @@ public class FirstPage extends Application {
      * Initializes the UI components by calling setupUI().
      */
     FirstPage() {
+        errorMessages = new StringBuilder();
         setupUI();
     }
 
@@ -137,6 +138,32 @@ public class FirstPage extends Application {
             }
         }
         return false; // Button not found in the group
+    }
+
+    /**
+     * Formats the phone number input using Google's libphonenumber library.
+     * Validates and formats the phone number to international format.
+     * Displays error messages if the number is invalid or cannot be parsed.
+     */
+    public static void formatPhoneNumber(JFormattedTextField phoneNumber, StringBuilder errorMessages) {
+        String rawNumber = phoneNumber.getText();
+        PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+
+        try {
+            // Parse number (assuming default country as 'US' for this example)
+            Phonenumber.PhoneNumber numberProto = phoneUtil.parse(rawNumber, "US");
+
+            if (phoneUtil.isValidNumber(numberProto)) {
+                String formattedNumber = phoneUtil.format(numberProto, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
+                phoneNumber.setValue(formattedNumber);  // Sets formatted value
+            } else {
+                errorMessages.append("Invalid phone number!\n");
+
+            }
+        } catch (NumberParseException e) {
+//            JOptionPane.showMessageDialog(page1Frame, "Error parsing phone number!", "Error", JOptionPane.ERROR_MESSAGE);
+            errorMessages.append("Error parsing phone number!\n");
+        }
     }
 
     /**
@@ -586,7 +613,7 @@ public class FirstPage extends Application {
             @Override
             public void focusLost(FocusEvent evt) {
                 if (!phoneNumber.getText().isBlank()) {
-                    formatPhoneNumber(phoneNumber);
+                    formatPhoneNumber(phoneNumber, errorMessages);
                 }
             }
         });
@@ -625,7 +652,6 @@ public class FirstPage extends Application {
         panel.repaint();
         page1Frame.pack();
     }
-
 
     /**
      * Removes a specified phone field from the provided JPanel and updates
@@ -712,7 +738,6 @@ public class FirstPage extends Application {
         }
     }
 
-
     /**
      * Validates a standard JTextField to ensure it is not empty.
      * <p>
@@ -751,7 +776,7 @@ public class FirstPage extends Application {
         if (field.getText().isEmpty()) {
             errorMessages.append("Phone number is required!\n");
         } else {
-            formatPhoneNumber(field); // Formats if valid
+            formatPhoneNumber(field, errorMessages); // Formats if valid
         }
     }
 
@@ -800,7 +825,6 @@ public class FirstPage extends Application {
         new refrencesForm();
     }
 
-
     /**
      * Clears all form fields and resets selections.
      * This includes:
@@ -834,33 +858,6 @@ public class FirstPage extends Application {
         if (!Objects.equals(stateDropdown.getSelectedItem(), "State")) {
             stateDropdown.setSelectedItem("State");
 
-        }
-    }
-
-    /**
-     * Formats the phone number input using Google's libphonenumber library.
-     * Validates and formats the phone number to international format.
-     * Displays error messages if the number is invalid or cannot be parsed.
-     */
-    private void formatPhoneNumber(JFormattedTextField phoneNumber) {
-        String rawNumber = phoneNumber.getText();
-        PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
-
-        try {
-            // Parse number (assuming default country as 'US' for this example)
-            Phonenumber.PhoneNumber numberProto = phoneUtil.parse(rawNumber, "US");
-
-            if (phoneUtil.isValidNumber(numberProto)) {
-                String formattedNumber = phoneUtil.format(numberProto, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
-                phoneNumber.setValue(formattedNumber);  // Sets formatted value
-            } else {
-//                JOptionPane.showMessageDialog(page1Frame, "Invalid phone number!", "Error", JOptionPane.ERROR_MESSAGE);
-                errorMessages.append("Invalid phone number!\n");
-
-            }
-        } catch (NumberParseException e) {
-//            JOptionPane.showMessageDialog(page1Frame, "Error parsing phone number!", "Error", JOptionPane.ERROR_MESSAGE);
-            errorMessages.append("Error parsing phone number!\n");
         }
     }
 }

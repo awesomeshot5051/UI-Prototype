@@ -2,6 +2,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -9,18 +11,17 @@ import java.util.regex.Pattern;
 
 public class refrencesForm extends JFrame {
 
+    private static final String regex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
     //JPanels
     private final JPanel mainPanel;
     private final JPanel refrencePanel;
     private final JPanel headerButtonPanel;
     private final JPanel footerButtonPanel;
-
-
+    private final StringBuilder errorMessages = new StringBuilder();
     //JButtons
     private final JButton addRefrenceButton;
     private final JButton clearMostRecentButton;
     private final JButton nextPage;
-
     //JLabes
     private final JLabel headerTitle;
     private final ArrayList<JPanel> refrenceFieldsList = new ArrayList<>();
@@ -83,12 +84,22 @@ public class refrencesForm extends JFrame {
             }
         });
 
-        nextPage.addActionListener(e -> validateFields());
+        nextPage.addActionListener(_ -> validateFields());
 
         add(mainPanel);
         setVisible(true);
     }
 
+    /**
+     * Processes the form data when all inputs are valid.
+     * <p>
+     * This method retrieves the user's input data, including the first name, middle name (if applicable),
+     * last name, and other information, then prints it to the console for further processing.
+     * </p>
+     */
+    public static void main(String[] args) {
+        new refrencesForm();
+    }
 
     /* This function is used to populate the interface
      *  with the fields to enter information */
@@ -110,11 +121,13 @@ public class refrencesForm extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         JTextField employerField = new JTextField(10);
         employerField.setBorder(BorderFactory.createTitledBorder("Name"));
+        employerField.setName("Employer");
         refrenceFields.add(employerField, gbc);
 
         gbc.gridx = 1; // Column 1
         JTextField jobTitleField = new JTextField(10);
-        jobTitleField.setBorder(BorderFactory.createTitledBorder("Posistion"));
+        jobTitleField.setBorder(BorderFactory.createTitledBorder("Position"));
+        jobTitleField.setName("Position");
         refrenceFields.add(jobTitleField, gbc);
 
         // Second Row: Start Date, End Date
@@ -123,17 +136,28 @@ public class refrencesForm extends JFrame {
         JTextField startDayField = new JTextField(10);
         startDayField.setBorder(BorderFactory.createTitledBorder("Company"));
         refrenceFields.add(startDayField, gbc);
+        refrenceFields.setName("Company");
 
         gbc.gridx = 1; // Column 1
-        JTextField endDayField = new JTextField(10);
-        endDayField.setBorder(BorderFactory.createTitledBorder("Phone Number"));
-        refrenceFields.add(endDayField, gbc);
+        JFormattedTextField phoneNumber = new JFormattedTextField();
+        phoneNumber.setBorder(BorderFactory.createTitledBorder("Phone Number"));
+        refrenceFields.add(phoneNumber, gbc);
+        phoneNumber.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent evt) {
+                if (!phoneNumber.getText().isBlank()) {
+                    FirstPage.formatPhoneNumber(phoneNumber, errorMessages);
+                }
+            }
+        });
+        refrenceFields.setName("Phone Number");
 
         // Third Row: Address related fields
         gbc.gridx = 0; // Column 0
         gbc.gridy = 2; // Row 2
         JTextField addressField = new JTextField(10);
         addressField.setBorder(BorderFactory.createTitledBorder("Email"));
+        addressField.setName("Email");
         refrenceFields.add(addressField, gbc);
 
 
@@ -180,14 +204,18 @@ public class refrencesForm extends JFrame {
         for (JPanel panel : refrenceFieldsList) {
             for (Component component : panel.getComponents()) {
                 if (component instanceof JTextField textField) {
+                    if (component instanceof JFormattedTextField) {
+                        validateFormattedTextField((JFormattedTextField) component);
+                    }
+                    validateTextField(textField);
                     if (textField.getText().trim().isEmpty()) {
                         allFieldsFilled = false;
-                        break; // Exit inner loop as soon as an empty field is found
+//                        break; // Exit inner loop as soon as an empty field is found
                     }
                 } else if (component instanceof JComboBox<?> comboBox) {
                     if (comboBox.getSelectedIndex() == 0) { // Assuming index 0 is "Select State"
                         allFieldsFilled = false;
-                        break;
+//                        break;
                     }
                 }
             }
@@ -195,74 +223,68 @@ public class refrencesForm extends JFrame {
         }
 
         if (!allFieldsFilled) {
-            JOptionPane.showMessageDialog(this, "Please answer all questions before continuing.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, errorMessages.toString(), "Error", JOptionPane.ERROR_MESSAGE);
+            errorMessages.delete(0, errorMessages.length());
         } else {
             nextPage(); // Proceed if all fields are filled
         }
     }
 
-    public void nextPage() {
-        SwingUtilities.invokeLater(() -> {
-            dispose();
-            new educationForm().setVisible(true);
-        });
-    }
-
     //    public static void main(String[] args) {
 //        SwingUtilities.invokeLater(() -> new refrencesForm());
 //    }
-    private void submitAndNextPage() {
-        errorMessages.setLength(0); // Clear previous error messages
-        Component component = tabbedPane.getComponentAt(1);
+//    private void submitAndNextPage() {
+//        errorMessages.setLength(0); // Clear previous error messages
+//        Component component = tabbedPane.getComponentAt(1);
+//
+//        // Iterate over all components in each tab
+//        for (Component tab : tabbedPane.getComponents()) {
+//            if (tab instanceof JPanel) {
+//                validateComponents((JPanel) tab);
+//            }
+//        }
+//
+//        // Display error messages if any issues were found
+//        if (!errorMessages.isEmpty()) {
+//            JOptionPane.showMessageDialog(page1Frame, errorMessages.toString(), "Input Errors", JOptionPane.ERROR_MESSAGE);
+//        } else {
+//            processValidFormData(); // Process form data if no errors
+//        }
+//    }
 
-        // Iterate over all components in each tab
-        for (Component tab : tabbedPane.getComponents()) {
-            if (tab instanceof JPanel) {
-                validateComponents((JPanel) tab);
-            }
-        }
-
-        // Display error messages if any issues were found
-        if (!errorMessages.isEmpty()) {
-            JOptionPane.showMessageDialog(page1Frame, errorMessages.toString(), "Input Errors", JOptionPane.ERROR_MESSAGE);
-        } else {
-            processValidFormData(); // Process form data if no errors
-        }
-    }
-
-    /**
-     * Validates all components within the specified panel.
-     * <p>
-     * This method checks each component in the panel, verifying text fields for completeness,
-     * formatted text fields (like phone numbers) for correctness, dropdown selections for validity,
-     * and radio buttons for group selection.
-     * </p>
-     *
-     * @param panel The JPanel containing the components to validate.
-     */
-    private void validateComponents(JPanel panel) {
-        for (Component comp : panel.getComponents()) {
-            if (comp instanceof JTextField) {
-                if (comp instanceof JFormattedTextField) {
-                    validateFormattedTextField((JFormattedTextField) comp);
-                } else {
-                    validateTextField((JTextField) comp);
-                }
-            } else if (comp instanceof JComboBox) {
-                validateDropdown((JComboBox<?>) comp);
-            } else if (comp instanceof JPanel) {
-                validateComponents((JPanel) comp); // Recursive call for nested panels
-            } else if (comp instanceof JRadioButton) {
-                if (isButtonInGroup((JRadioButton) comp, radioButtonGroup)) {
-                    validateButtonGroup(radioButtonGroup);
-                } else if (isButtonInGroup((JRadioButton) comp, yearsAtAdd)) {
-                    validateButtonGroup(yearsAtAdd);
-                } else if (isButtonInGroup((JRadioButton) comp, over18)) {
-                    validateButtonGroup(over18);
-                }
-            }
-        }
-    }
+//    /**
+//     * Validates all components within the specified panel.
+//     * <p>
+//     * This method checks each component in the panel, verifying text fields for completeness,
+//     * formatted text fields (like phone numbers) for correctness, dropdown selections for validity,
+//     * and radio buttons for group selection.
+//     * </p>
+//     *
+//     * @param panel The JPanel containing the components to validate.
+//     */
+//    private void validateComponents(JPanel panel) {
+//        for (Component comp : panel.getComponents()) {
+//            if (comp instanceof JTextField) {
+//                if (comp instanceof JFormattedTextField) {
+//                    validateFormattedTextField((JFormattedTextField) comp);
+//                } else {
+//                    validateTextField((JTextField) comp);
+//                }
+//            } else if (comp instanceof JComboBox) {
+//                validateDropdown((JComboBox<?>) comp);
+//            } else if (comp instanceof JPanel) {
+//                validateComponents((JPanel) comp); // Recursive call for nested panels
+//            } else if (comp instanceof JRadioButton) {
+//                if (isButtonInGroup((JRadioButton) comp, radioButtonGroup)) {
+//                    validateButtonGroup(radioButtonGroup);
+//                } else if (isButtonInGroup((JRadioButton) comp, yearsAtAdd)) {
+//                    validateButtonGroup(yearsAtAdd);
+//                } else if (isButtonInGroup((JRadioButton) comp, over18)) {
+//                    validateButtonGroup(over18);
+//                }
+//            }
+//        }
+//    }
 
 
     /**
@@ -275,12 +297,12 @@ public class refrencesForm extends JFrame {
      * @param field The JTextField to validate.
      */
     private void validateTextField(JTextField field) {
-        if (field.getText().isEmpty() && !Objects.equals(field.getName(), "Middle Name")) {
+        if (field.getText().isEmpty()) {
             errorMessages.append(field.getName()).append(" is required!\n");
         } else {
             if (Objects.equals(field.getName(), "Email")) {
                 Pattern pattern = Pattern.compile(regex);
-                String emailText = email.getText();
+                String emailText = field.getText();
                 Matcher matcher = pattern.matcher(emailText);
                 if (emailText.isEmpty()) {
                     errorMessages.append("Email is required!\n");
@@ -291,62 +313,60 @@ public class refrencesForm extends JFrame {
         }
     }
 
-    /**
-     * Validates a JFormattedTextField (in this case the only JFormattedTextField is the phone number field) to ensure it is not empty.
-     * <p>
-     * If the field is filled, it calls the method to format the phone number.
-     * </p>
-     *
-     * @param field The JFormattedTextField to validate.
-     */
+    //    /**
+//     * Validates a JFormattedTextField (in this case the only JFormattedTextField is the phone number field) to ensure it is not empty.
+//     * <p>
+//     * If the field is filled, it calls the method to format the phone number.
+//     * </p>
+//     *
+//     * @param field The JFormattedTextField to validate.
+//     */
     private void validateFormattedTextField(JFormattedTextField field) {
         if (field.getText().isEmpty()) {
             errorMessages.append("Phone number is required!\n");
         } else {
-            formatPhoneNumber(field); // Formats if valid
+            FirstPage.formatPhoneNumber(field, errorMessages); // Formats if valid
         }
     }
 
-    /**
-     * Validates a JComboBox to ensure that a selection is made that is not the default option.
-     * <p>
-     * In this implementation, it checks that the dropdown is not left on the default item "State".
-     * </p>
-     *
-     * @param dropdown The JComboBox to validate.
-     */
-    private void validateDropdown(JComboBox<?> dropdown) {
-        if (Objects.equals(dropdown.getSelectedItem(), "State")) { // Customize for your dropdown
-            errorMessages.append(dropdown.getName()).append(" must be selected!\n");
-        }
+//    /**
+//     * Validates a JComboBox to ensure that a selection is made that is not the default option.
+//     * <p>
+//     * In this implementation, it checks that the dropdown is not left on the default item "State".
+//     * </p>
+//     *
+//     * @param dropdown The JComboBox to validate.
+//     */
+//    private void validateDropdown(JComboBox<?> dropdown) {
+//        if (Objects.equals(dropdown.getSelectedItem(), "State")) { // Customize for your dropdown
+//            errorMessages.append(dropdown.getName()).append(" must be selected!\n");
+//        }
+//    }
+
+    //    /**
+//     * Validates a ButtonGroup to ensure at least one button is selected.
+//     * <p>
+//     * If no selection is made, it appends a relevant error message based on the specific button group being checked.
+//     * </p>
+//     *
+//     * @param group The ButtonGroup to validate.
+//     */
+//    private void validateButtonGroup(ButtonGroup group) {
+//        if (group.getSelection() == null) {
+//            String message = yearsAtAdd == group ? "Years at Address is required!\n" :
+//                    radioButtonGroup == group ? "Gender Selection Required!\n" :
+//                            over18 == group ? "You need to say whether you're over 18!\n" : "Unknown selection is required!\n";
+//            if (!errorMessages.toString().contains(message)) {
+//                errorMessages.append(message);
+//            }
+//        }
+//
+//    }
+    public void nextPage() {
+        SwingUtilities.invokeLater(() -> {
+            dispose();
+            new educationForm().setVisible(true);
+        });
     }
-
-    /**
-     * Validates a ButtonGroup to ensure at least one button is selected.
-     * <p>
-     * If no selection is made, it appends a relevant error message based on the specific button group being checked.
-     * </p>
-     *
-     * @param group The ButtonGroup to validate.
-     */
-    private void validateButtonGroup(ButtonGroup group) {
-        if (group.getSelection() == null) {
-            String message = yearsAtAdd == group ? "Years at Address is required!\n" :
-                    radioButtonGroup == group ? "Gender Selection Required!\n" :
-                            over18 == group ? "You need to say whether you're over 18!\n" : "Unknown selection is required!\n";
-            if (!errorMessages.toString().contains(message)) {
-                errorMessages.append(message);
-            }
-        }
-
-    }
-
-    /**
-     * Processes the form data when all inputs are valid.
-     * <p>
-     * This method retrieves the user's input data, including the first name, middle name (if applicable),
-     * last name, and other information, then prints it to the console for further processing.
-     * </p>
-     */
 
 }
