@@ -489,7 +489,7 @@ public class FirstPage extends Application {
 
         // Action buttons
         JButton clearButton = new JButton("Clear");
-        JButton submitButton = new JButton("Submit");
+        JButton submitButton = new JButton("Next Page");
 
         // Set up frame
         ImageIcon icon = new ImageIcon("D:\\UI-Prototype\\Prototype\\Icon\\UNFinshedBusiness.png");
