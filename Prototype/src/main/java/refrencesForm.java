@@ -1,3 +1,7 @@
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -73,14 +77,14 @@ public class refrencesForm extends JFrame {
         addRefrenceButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                addRefrenceFields();
+                addReferenceFields();
             }
         });
 
         clearMostRecentButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                clearMostRecentRefrenceField();
+                clearMostRecentReferenceField();
             }
         });
 
@@ -97,22 +101,43 @@ public class refrencesForm extends JFrame {
      * last name, and other information, then prints it to the console for further processing.
      * </p>
      */
-    public static void main(String[] args) {
-        new refrencesForm();
+    public static boolean formatPhoneNumber(JFormattedTextField phoneNumber, StringBuilder errorMessages, String panelName) {
+        String rawNumber = phoneNumber.getText();
+        PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+
+        try {
+            // Parse number (assuming default country as 'US' for this example)
+            Phonenumber.PhoneNumber numberProto = phoneUtil.parse(rawNumber, "US");
+
+            if (phoneUtil.isValidNumber(numberProto)) {
+                String formattedNumber = phoneUtil.format(numberProto, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
+                phoneNumber.setValue(formattedNumber);  // Sets formatted value
+            } else {
+                if (!errorMessages.toString().contains("Invalid phone number for " + panelName + "\n")) {
+                    errorMessages.append("Invalid phone number for ").append(panelName).append("!\n");
+                }
+                return false;
+            }
+        } catch (NumberParseException e) {
+//            JOptionPane.showMessageDialog(page1Frame, "Error parsing phone number!", "Error", JOptionPane.ERROR_MESSAGE);
+            errorMessages.append("Error parsing phone number for ").append(panelName).append("!\n");
+            return false;
+        }
+        return true;
     }
 
     /* This function is used to populate the interface
      *  with the fields to enter information */
-    private void addRefrenceFields() {
+    private void addReferenceFields() {
 
         entryNumber++;
-
-        JPanel refrenceFields = new JPanel();
-        refrenceFields.setLayout(new GridBagLayout());
+        JPanel referenceFields = new JPanel();
+        referenceFields.setName("Company " + entryNumber);
+        referenceFields.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5); // Padding between components
 
-        refrenceFields.setBorder(BorderFactory.createTitledBorder("Reference " + entryNumber));
+        referenceFields.setBorder(BorderFactory.createTitledBorder("Reference " + entryNumber));
 
         // First Row: Employer Name and Job Title
         gbc.gridx = 0; // Column 0
@@ -122,35 +147,35 @@ public class refrencesForm extends JFrame {
         JTextField employerField = new JTextField(10);
         employerField.setBorder(BorderFactory.createTitledBorder("Name"));
         employerField.setName("Employer");
-        refrenceFields.add(employerField, gbc);
+        referenceFields.add(employerField, gbc);
 
         gbc.gridx = 1; // Column 1
         JTextField jobTitleField = new JTextField(10);
         jobTitleField.setBorder(BorderFactory.createTitledBorder("Position"));
         jobTitleField.setName("Position");
-        refrenceFields.add(jobTitleField, gbc);
+        referenceFields.add(jobTitleField, gbc);
 
         // Second Row: Start Date, End Date
         gbc.gridx = 0; // Column 0
         gbc.gridy = 1; // Row 1
         JTextField startDayField = new JTextField(10);
         startDayField.setBorder(BorderFactory.createTitledBorder("Company"));
-        refrenceFields.add(startDayField, gbc);
-        refrenceFields.setName("Company");
+        referenceFields.add(startDayField, gbc);
+        startDayField.setName("Company");
 
         gbc.gridx = 1; // Column 1
         JFormattedTextField phoneNumber = new JFormattedTextField();
         phoneNumber.setBorder(BorderFactory.createTitledBorder("Phone Number"));
-        refrenceFields.add(phoneNumber, gbc);
+        referenceFields.add(phoneNumber, gbc);
         phoneNumber.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent evt) {
                 if (!phoneNumber.getText().isBlank()) {
-                    FirstPage.formatPhoneNumber(phoneNumber, errorMessages);
+                    formatPhoneNumber(phoneNumber, errorMessages, referenceFields.getName());
                 }
             }
         });
-        refrenceFields.setName("Phone Number");
+        phoneNumber.setName("Phone Number");
 
         // Third Row: Address related fields
         gbc.gridx = 0; // Column 0
@@ -158,7 +183,7 @@ public class refrencesForm extends JFrame {
         JTextField addressField = new JTextField(10);
         addressField.setBorder(BorderFactory.createTitledBorder("Email"));
         addressField.setName("Email");
-        refrenceFields.add(addressField, gbc);
+        referenceFields.add(addressField, gbc);
 
 
         // State Dropdown
@@ -166,9 +191,9 @@ public class refrencesForm extends JFrame {
         gbc.gridy = 3; // Same row as zip
 
 
-        refrenceFieldsList.add(refrenceFields);
+        refrenceFieldsList.add(referenceFields);
 
-        refrencePanel.add(refrenceFields);
+        refrencePanel.add(referenceFields);
 
         refrencePanel.revalidate(); // Refresh the panel to show new fields
         refrencePanel.repaint();
@@ -178,12 +203,12 @@ public class refrencesForm extends JFrame {
      * clearMostRecent function
      * Grabs the most recent field added and removes it from the interface
      */
-    private void clearMostRecentRefrenceField() {
+    private void clearMostRecentReferenceField() {
 
         if (!refrenceFieldsList.isEmpty()) {
 
             //targets the last panel added and removes from arrayList assigns to JPanel
-            JPanel lastExperienceField = refrenceFieldsList.remove(refrenceFieldsList.size() - 1);
+            JPanel lastExperienceField = refrenceFieldsList.removeLast();
 
             //removing panel from experience panel
             refrencePanel.remove(lastExperienceField);
@@ -202,89 +227,28 @@ public class refrencesForm extends JFrame {
         boolean allFieldsFilled = true;
 
         for (JPanel panel : refrenceFieldsList) {
+            String panelName = panel.getName() != null ? panel.getName() : "Unnamed Reference";
             for (Component component : panel.getComponents()) {
                 if (component instanceof JTextField textField) {
                     if (component instanceof JFormattedTextField) {
-                        validateFormattedTextField((JFormattedTextField) component);
-                    }
-                    validateTextField(textField);
-                    if (textField.getText().trim().isEmpty()) {
-                        allFieldsFilled = false;
-//                        break; // Exit inner loop as soon as an empty field is found
+                        allFieldsFilled &= validateFormattedTextField((JFormattedTextField) component, panelName);
+                    } else {
+                        allFieldsFilled &= validateTextField(textField, panelName);
                     }
                 } else if (component instanceof JComboBox<?> comboBox) {
-                    if (comboBox.getSelectedIndex() == 0) { // Assuming index 0 is "Select State"
-                        allFieldsFilled = false;
-//                        break;
-                    }
+                    allFieldsFilled &= validateDropdown(comboBox, panelName);
                 }
             }
-            if (!allFieldsFilled) break; // Exit outer loop if any field is empty
+//            if (!allFieldsFilled) break;
         }
 
         if (!allFieldsFilled) {
             JOptionPane.showMessageDialog(this, errorMessages.toString(), "Error", JOptionPane.ERROR_MESSAGE);
             errorMessages.delete(0, errorMessages.length());
         } else {
-            nextPage(); // Proceed if all fields are filled
+            nextPage();
         }
     }
-
-    //    public static void main(String[] args) {
-//        SwingUtilities.invokeLater(() -> new refrencesForm());
-//    }
-//    private void submitAndNextPage() {
-//        errorMessages.setLength(0); // Clear previous error messages
-//        Component component = tabbedPane.getComponentAt(1);
-//
-//        // Iterate over all components in each tab
-//        for (Component tab : tabbedPane.getComponents()) {
-//            if (tab instanceof JPanel) {
-//                validateComponents((JPanel) tab);
-//            }
-//        }
-//
-//        // Display error messages if any issues were found
-//        if (!errorMessages.isEmpty()) {
-//            JOptionPane.showMessageDialog(page1Frame, errorMessages.toString(), "Input Errors", JOptionPane.ERROR_MESSAGE);
-//        } else {
-//            processValidFormData(); // Process form data if no errors
-//        }
-//    }
-
-//    /**
-//     * Validates all components within the specified panel.
-//     * <p>
-//     * This method checks each component in the panel, verifying text fields for completeness,
-//     * formatted text fields (like phone numbers) for correctness, dropdown selections for validity,
-//     * and radio buttons for group selection.
-//     * </p>
-//     *
-//     * @param panel The JPanel containing the components to validate.
-//     */
-//    private void validateComponents(JPanel panel) {
-//        for (Component comp : panel.getComponents()) {
-//            if (comp instanceof JTextField) {
-//                if (comp instanceof JFormattedTextField) {
-//                    validateFormattedTextField((JFormattedTextField) comp);
-//                } else {
-//                    validateTextField((JTextField) comp);
-//                }
-//            } else if (comp instanceof JComboBox) {
-//                validateDropdown((JComboBox<?>) comp);
-//            } else if (comp instanceof JPanel) {
-//                validateComponents((JPanel) comp); // Recursive call for nested panels
-//            } else if (comp instanceof JRadioButton) {
-//                if (isButtonInGroup((JRadioButton) comp, radioButtonGroup)) {
-//                    validateButtonGroup(radioButtonGroup);
-//                } else if (isButtonInGroup((JRadioButton) comp, yearsAtAdd)) {
-//                    validateButtonGroup(yearsAtAdd);
-//                } else if (isButtonInGroup((JRadioButton) comp, over18)) {
-//                    validateButtonGroup(over18);
-//                }
-//            }
-//        }
-//    }
 
 
     /**
@@ -296,21 +260,25 @@ public class refrencesForm extends JFrame {
      *
      * @param field The JTextField to validate.
      */
-    private void validateTextField(JTextField field) {
+    private boolean validateTextField(JTextField field, String panelName) {
         if (field.getText().isEmpty()) {
-            errorMessages.append(field.getName()).append(" is required!\n");
+            errorMessages.append(field.getName()).append(" is required for ").append(panelName).append("\n");
+            return false;
         } else {
             if (Objects.equals(field.getName(), "Email")) {
                 Pattern pattern = Pattern.compile(regex);
                 String emailText = field.getText();
                 Matcher matcher = pattern.matcher(emailText);
                 if (emailText.isEmpty()) {
-                    errorMessages.append("Email is required!\n");
+                    errorMessages.append("Email is required for").append(panelName).append("\n");
+                    return false;
                 } else if (!matcher.matches()) {
-                    errorMessages.append("Email format is invalid!\n");
+                    errorMessages.append("Email format is invalid for ").append(panelName).append("\n");
+                    return false;
                 }
             }
         }
+        return true;
     }
 
     //    /**
@@ -321,27 +289,30 @@ public class refrencesForm extends JFrame {
 //     *
 //     * @param field The JFormattedTextField to validate.
 //     */
-    private void validateFormattedTextField(JFormattedTextField field) {
+    private boolean validateFormattedTextField(JFormattedTextField field, String panelName) {
         if (field.getText().isEmpty()) {
-            errorMessages.append("Phone number is required!\n");
+            errorMessages.append("Phone number is required for ").append(panelName).append("\n");
+            return false;
         } else {
-            FirstPage.formatPhoneNumber(field, errorMessages); // Formats if valid
+            return formatPhoneNumber(field, errorMessages, panelName); // Formats if valid\
         }
     }
 
-//    /**
-//     * Validates a JComboBox to ensure that a selection is made that is not the default option.
-//     * <p>
-//     * In this implementation, it checks that the dropdown is not left on the default item "State".
-//     * </p>
-//     *
-//     * @param dropdown The JComboBox to validate.
-//     */
-//    private void validateDropdown(JComboBox<?> dropdown) {
-//        if (Objects.equals(dropdown.getSelectedItem(), "State")) { // Customize for your dropdown
-//            errorMessages.append(dropdown.getName()).append(" must be selected!\n");
-//        }
-//    }
+    /**
+     * Validates a JComboBox to ensure that a selection is made that is not the default option.
+     * <p>
+     * In this implementation, it checks that the dropdown is not left on the default item "State".
+     * </p>
+     *
+     * @param dropdown The JComboBox to validate.
+     */
+    private boolean validateDropdown(JComboBox<?> dropdown, String panelName) {
+        if (dropdown.getSelectedIndex() == 0) { // Customize for your dropdown
+            errorMessages.append(dropdown.getName()).append(" must be selected!\n");
+            return false;
+        }
+        return true;
+    }
 
     //    /**
 //     * Validates a ButtonGroup to ensure at least one button is selected.

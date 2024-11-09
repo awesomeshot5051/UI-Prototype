@@ -145,7 +145,7 @@ public class FirstPage extends Application {
      * Validates and formats the phone number to international format.
      * Displays error messages if the number is invalid or cannot be parsed.
      */
-    public static void formatPhoneNumber(JFormattedTextField phoneNumber, StringBuilder errorMessages) {
+    private void formatPhoneNumber(JFormattedTextField phoneNumber, StringBuilder errorMessages) {
         String rawNumber = phoneNumber.getText();
         PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
 
@@ -157,8 +157,9 @@ public class FirstPage extends Application {
                 String formattedNumber = phoneUtil.format(numberProto, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
                 phoneNumber.setValue(formattedNumber);  // Sets formatted value
             } else {
-                errorMessages.append("Invalid phone number!\n");
-
+                if (!errorMessages.toString().contains("Invalid phone number!\n")) {
+                    errorMessages.append("Invalid phone number!\n");
+                }
             }
         } catch (NumberParseException e) {
 //            JOptionPane.showMessageDialog(page1Frame, "Error parsing phone number!", "Error", JOptionPane.ERROR_MESSAGE);
