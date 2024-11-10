@@ -823,6 +823,7 @@ public class FirstPage extends Application {
      */
     private void processValidFormData() {
         new referencesForm();
+        page1Frame.dispose();
     }
 
     /**

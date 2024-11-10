@@ -92,6 +92,7 @@ public class referencesForm extends JFrame {
 
         add(mainPanel);
         setVisible(true);
+        setLocationRelativeTo(null);
         setIconImage(UIPrototypeMainClass.getIcon());
     }
 

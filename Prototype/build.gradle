@@ -19,9 +19,11 @@ javafx {
 dependencies {
     // https://mvnrepository.com/artifact/org.json/json
     implementation("org.json:json:20240303")
-    implementation 'org.eclipse.jgit:org.eclipse.jgit:6.3.0.202209071007-r'
+    implementation 'org.eclipse.jgit:org.eclipse.jgit:6.6.1.202309021850-r'
     implementation 'com.googlecode.libphonenumber:libphonenumber:8.13.48'
     implementation 'com.dlsc.phonenumberfx:phonenumberfx:1.9.0'
+    implementation group: 'com.github.lgooddatepicker', name: 'LGoodDatePicker', version: '11.2.1'
+
 }
 tasks.register('Prototype', JavaExec) {
     group = "application"
