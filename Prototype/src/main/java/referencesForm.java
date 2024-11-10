@@ -13,12 +13,12 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class refrencesForm extends JFrame {
+public class referencesForm extends JFrame {
 
     private static final String regex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
     //JPanels
     private final JPanel mainPanel;
-    private final JPanel refrencePanel;
+    private final JPanel referencePanel;
     private final JPanel headerButtonPanel;
     private final JPanel footerButtonPanel;
     private final StringBuilder errorMessages = new StringBuilder();
@@ -31,13 +31,13 @@ public class refrencesForm extends JFrame {
     private final ArrayList<JPanel> refrenceFieldsList = new ArrayList<>();
     private int entryNumber = 0; //used to keep track of fields created
 
-    public refrencesForm() {
+    public referencesForm() {
         // Set up main frame
-        setTitle("Refrences Form");
+        setTitle("References Form");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(500, 400); // Adjusted size to accommodate fields better
 
-        JLabel headerLabel = new JLabel("Refrences", JLabel.CENTER);
+        JLabel headerLabel = new JLabel("References", JLabel.CENTER);
         headerLabel.setFont(new Font("Arial", Font.BOLD, 24));
 
         // Main panel to hold all components
@@ -45,11 +45,11 @@ public class refrencesForm extends JFrame {
         mainPanel.setLayout(new BorderLayout());
 
         // Panel to hold dynamic experience fields
-        refrencePanel = new JPanel();
-        refrencePanel.setLayout(new BoxLayout(refrencePanel, BoxLayout.Y_AXIS));
+        referencePanel = new JPanel();
+        referencePanel.setLayout(new BoxLayout(referencePanel, BoxLayout.Y_AXIS));
 
         // Scroll pane for experience fields
-        JScrollPane scrollPane = new JScrollPane(refrencePanel);
+        JScrollPane scrollPane = new JScrollPane(referencePanel);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
 
         //initializing all components for header
@@ -92,6 +92,7 @@ public class refrencesForm extends JFrame {
 
         add(mainPanel);
         setVisible(true);
+        setIconImage(UIPrototypeMainClass.getIcon());
     }
 
     /**
@@ -193,10 +194,10 @@ public class refrencesForm extends JFrame {
 
         refrenceFieldsList.add(referenceFields);
 
-        refrencePanel.add(referenceFields);
+        referencePanel.add(referenceFields);
 
-        refrencePanel.revalidate(); // Refresh the panel to show new fields
-        refrencePanel.repaint();
+        referencePanel.revalidate(); // Refresh the panel to show new fields
+        referencePanel.repaint();
     }
 
     /**
@@ -211,11 +212,11 @@ public class refrencesForm extends JFrame {
             JPanel lastExperienceField = refrenceFieldsList.removeLast();
 
             //removing panel from experience panel
-            refrencePanel.remove(lastExperienceField);
+            referencePanel.remove(lastExperienceField);
 
             //refresh page
-            refrencePanel.revalidate();
-            refrencePanel.repaint();
+            referencePanel.revalidate();
+            referencePanel.repaint();
 
             //decrementing entry number to let user keep track of number of fields added
             entryNumber--;
