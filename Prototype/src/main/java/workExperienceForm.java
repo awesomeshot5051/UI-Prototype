@@ -32,7 +32,7 @@ public class workExperienceForm extends JFrame {
         setIconImage(UIPrototypeMainClass.getIcon());
         setTitle("Work Experience Form");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(500, 400); // Adjusted size to accommodate fields better
+        setSize(600, 400); // Adjusted size to accommodate fields better
 
         JLabel headerLabel = new JLabel("Employment Information", JLabel.CENTER);
         headerLabel.setFont(new Font("Arial", Font.BOLD, 24));
@@ -81,12 +81,10 @@ public class workExperienceForm extends JFrame {
         setVisible(true);
         setLocationRelativeTo(null);
     }
-    
 
     /* This function is used to populate the interface
      *  with the fields to enter information */
     private void addExperienceFields() {
-
         entryNumber++;
 
         JPanel experienceFields = new JPanel();
@@ -117,30 +115,39 @@ public class workExperienceForm extends JFrame {
         gbc.gridx = 0; // Column 0
         gbc.gridy = 1; // Row 1
         DatePickerSettings startDateSettings = new DatePickerSettings(Locale.ENGLISH);
-
-//        DatePicker datePicker = new DatePicker(startDateSettings);
-
         DatePicker startDatePicker = new DatePicker(startDateSettings);
+
         // Set the veto policy to disable dates after today
-        startDateSettings.setVetoPolicy(date -> {
-            // Allow only dates up to the current date (today or before)
-            return !date.isAfter(LocalDate.now());
-        });
-//        startDatePicker.setTextEditable(true);
+        startDateSettings.setVetoPolicy(date -> !date.isAfter(LocalDate.now()));
+
         startDatePicker.setBorder(BorderFactory.createTitledBorder("Start Date"));
         startDatePicker.setName("Start");
         experienceFields.add(startDatePicker, gbc);
+
+        // End Date with "Currently Working" Checkbox
         DatePickerSettings endDateSettings = new DatePickerSettings(Locale.ENGLISH);
-        gbc.gridx = 1; // Column 1
         DatePicker endDatePicker = new DatePicker(endDateSettings);
-        endDateSettings.setVetoPolicy(date -> {
-            // Allow only dates up to the current date (today or before)
-            return !date.isAfter(LocalDate.now());
-        });
+        endDateSettings.setVetoPolicy(date -> !date.isAfter(LocalDate.now()));
         endDatePicker.setBorder(BorderFactory.createTitledBorder("End Date"));
         endDatePicker.setName("End");
+
+        gbc.gridx = 1; // Column 1 for End Date
         experienceFields.add(endDatePicker, gbc);
 
+        // "Currently Working" Checkbox
+        JCheckBox currentlyWorkingCheckbox = new JCheckBox("Currently Working");
+        gbc.gridx = 2; // Column 2 for Checkbox
+        experienceFields.add(currentlyWorkingCheckbox, gbc);
+
+        // Add ActionListener to Checkbox to hide/show the End Date field
+        currentlyWorkingCheckbox.addActionListener(e -> {
+            boolean isSelected = currentlyWorkingCheckbox.isSelected();
+            endDatePicker.setVisible(!isSelected); // Hide endDatePicker if checkbox is selected
+            experienceFields.revalidate(); // Refresh layout to update visibility
+            experienceFields.repaint();
+            experiencePanel.revalidate();
+            experiencePanel.repaint();
+        });
 
         // Third Row: Address related fields
         gbc.gridx = 0; // Column 0
@@ -171,9 +178,7 @@ public class workExperienceForm extends JFrame {
         experienceFields.add(stateDropdown, gbc);
         stateDropdown.setName("State");
 
-
         experienceFieldsList.add(experienceFields);
-
         experiencePanel.add(experienceFields);
 
         experiencePanel.revalidate(); // Refresh the panel to show new fields
@@ -237,11 +242,14 @@ public class workExperienceForm extends JFrame {
     }
 
     private void validateDatePicker(DatePicker datePicker, String panelName) {
-        if (datePicker.getText().isEmpty()) {
-            errorMessages.append(datePicker.getName()).append(" Date must be selected for ").append(panelName).append("!\n");
+        if (datePicker.getName().equals("End") && !datePicker.isVisible()) {
+            //do nothing
+        } else {
+            if (datePicker.getText().isEmpty()) {
+                errorMessages.append(datePicker.getName()).append(" Date must be selected for ").append(panelName).append("!\n");
+            }
         }
     }
-
 
     private void validateDropdown(JComboBox<?> dropdown, String panelName) {
         if (dropdown.getSelectedIndex() == 0) { // Customize for your dropdown
