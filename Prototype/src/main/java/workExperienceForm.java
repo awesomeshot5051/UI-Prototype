@@ -25,6 +25,7 @@ public class workExperienceForm extends JFrame {
 
     public workExperienceForm() {
         // Set up main frame
+        setIconImage(UIPrototypeMainClass.getIcon());
         setTitle("Work Experience Form");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(500, 400); // Adjusted size to accommodate fields better
@@ -147,14 +148,7 @@ public class workExperienceForm extends JFrame {
         // State Dropdown
         gbc.gridx = 1; // Column 1
         gbc.gridy = 3; // Same row as zip
-        String[] stateAbbreviations = {
-                "Select State", "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA",
-                "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH",
-                "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX",
-                "UT", "VT", "VA", "WA", "WV", "WI", "WY"
-        };
-
-        JComboBox<String> stateDropdown = new JComboBox<>(stateAbbreviations);
+        JComboBox<String> stateDropdown = UIPrototypeMainClass.getStates();
         stateDropdown.setBorder(BorderFactory.createTitledBorder("State"));
         experienceFields.add(stateDropdown, gbc);
 
@@ -176,7 +170,7 @@ public class workExperienceForm extends JFrame {
         if (!experienceFieldsList.isEmpty()) {
 
             //targets the last panel added and removes from arrayList assigns to JPanel
-            JPanel lastExperienceField = experienceFieldsList.remove(experienceFieldsList.size() - 1);
+            JPanel lastExperienceField = experienceFieldsList.removeLast();
 
             //removing panel from experience panel
             experiencePanel.remove(lastExperienceField);
@@ -194,7 +188,7 @@ public class workExperienceForm extends JFrame {
     public void nextPage() {
         SwingUtilities.invokeLater(() -> {
             dispose();
-            new refrencesForm().setVisible(true);
+            new referencesForm().setVisible(true);
         });
     }
 
