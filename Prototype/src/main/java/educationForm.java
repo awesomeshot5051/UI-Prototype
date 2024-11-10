@@ -86,12 +86,13 @@ public class educationForm extends JFrame {
 
         add(mainPanel);
         setVisible(true);
+        setLocationRelativeTo(null);
         setIconImage(UIPrototypeMainClass.getIcon());
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(educationForm::new);
-    }
+//    public static void main(String[] args) {
+//        SwingUtilities.invokeLater(educationForm::new);
+//    }
 
     /* This function is used to populate the interface
      *  with the fields to enter information */
@@ -203,6 +204,7 @@ public class educationForm extends JFrame {
 
     public void nextPage() {
         // new referencesForm().setVisible(true);
+        dispose();
         new workExperienceForm();
     }
 
