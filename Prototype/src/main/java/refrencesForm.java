@@ -244,7 +244,7 @@ public class refrencesForm extends JFrame {
 
         if (!allFieldsFilled) {
             JOptionPane.showMessageDialog(this, errorMessages.toString(), "Error", JOptionPane.ERROR_MESSAGE);
-            errorMessages.delete(0, errorMessages.length());
+            errorMessages.setLength(0);
         } else {
             nextPage();
         }

@@ -77,16 +77,16 @@ public class FirstPage extends Application {
     private final BorderPane parent = new BorderPane();
     private final ArrayList<JPanel> phonePanels = new ArrayList<>();
     private final JButton addPhoneButton = new JButton("Add Phone Number");
-    private final String[] states = {"State", "Alabama", "Alaska", "Arizona", "Arkansas", "California",
-            "Colorado", "Connecticut", "Delaware", "Florida", "Georgia",
-            "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas",
-            "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts",
-            "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana",
-            "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico",
-            "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma",
-            "Oregon", "Pennsylvania", "Rhode Island", "South Carolina",
-            "South Dakota", "Tennessee", "Texas", "Utah", "Vermont",
-            "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"};
+    //    private final String[] states = {"State", "Alabama", "Alaska", "Arizona", "Arkansas", "California",
+//            "Colorado", "Connecticut", "Delaware", "Florida", "Georgia",
+//            "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas",
+//            "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts",
+//            "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana",
+//            "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico",
+//            "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma",
+//            "Oregon", "Pennsylvania", "Rhode Island", "South Carolina",
+//            "South Dakota", "Tennessee", "Texas", "Utah", "Vermont",
+//            "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"};
     private final ButtonGroup over18 = new ButtonGroup();
     JTextField numberField, streetField, cityField, stateField, zipField;
     private JLabel currentAddressLabel;
@@ -412,7 +412,7 @@ public class FirstPage extends Application {
         streetField.setName("Street Name");
         cityField = new JTextField(10);
         cityField.setName("City");
-        stateDropdown = new JComboBox<>(states);
+        stateDropdown = UIPrototypeMainClass.getStates();
         zipField = new JTextField(5);
         zipField.setName("Zip Code");
         // Create a new panel for the address and years sections
