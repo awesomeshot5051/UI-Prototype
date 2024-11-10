@@ -1,8 +1,11 @@
+import com.github.lgooddatepicker.components.DatePicker;
+import com.github.lgooddatepicker.components.DatePickerSettings;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class workExperienceForm extends JFrame {
 
@@ -67,26 +70,20 @@ public class workExperienceForm extends JFrame {
 
 
         // Action listeners for buttons
-        addExperienceButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addExperienceFields();
-            }
-        });
+        addExperienceButton.addActionListener(_ -> addExperienceFields());
 
-        clearMostRecentButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                clearMostRecentExperienceField();
-            }
-        });
+        clearMostRecentButton.addActionListener(_ -> clearMostRecentExperienceField());
 
         nextPage.addActionListener(e -> validateFields());
 
         add(mainPanel);
         setVisible(true);
+        setLocationRelativeTo(null);
     }
 
+    public static void main(String[] args) {
+        new workExperienceForm();
+    }
 
     /* This function is used to populate the interface
      *  with the fields to enter information */
@@ -118,14 +115,29 @@ public class workExperienceForm extends JFrame {
         // Second Row: Start Date, End Date
         gbc.gridx = 0; // Column 0
         gbc.gridy = 1; // Row 1
-        JTextField startDayField = new JTextField(10);
-        startDayField.setBorder(BorderFactory.createTitledBorder("Start Date"));
-        experienceFields.add(startDayField, gbc);
+        DatePickerSettings startDateSettings = new DatePickerSettings(Locale.ENGLISH);
 
+//        DatePicker datePicker = new DatePicker(startDateSettings);
+
+        DatePicker startDatePicker = new DatePicker(startDateSettings);
+        // Set the veto policy to disable dates after today
+        startDateSettings.setVetoPolicy(date -> {
+            // Allow only dates up to the current date (today or before)
+            return !date.isAfter(LocalDate.now());
+        });
+//        startDatePicker.setTextEditable(true);
+        startDatePicker.setBorder(BorderFactory.createTitledBorder("Start Date"));
+        experienceFields.add(startDatePicker, gbc);
+        DatePickerSettings endDateSettings = new DatePickerSettings(Locale.ENGLISH);
         gbc.gridx = 1; // Column 1
-        JTextField endDayField = new JTextField(10);
-        endDayField.setBorder(BorderFactory.createTitledBorder("End Date"));
-        experienceFields.add(endDayField, gbc);
+        DatePicker endDatePicker = new DatePicker(endDateSettings);
+        endDateSettings.setVetoPolicy(date -> {
+            // Allow only dates up to the current date (today or before)
+            return !date.isAfter(LocalDate.now());
+        });
+        endDatePicker.setBorder(BorderFactory.createTitledBorder("End Date"));
+        experienceFields.add(endDatePicker, gbc);
+
 
         // Third Row: Address related fields
         gbc.gridx = 0; // Column 0
@@ -188,7 +200,7 @@ public class workExperienceForm extends JFrame {
     public void nextPage() {
         SwingUtilities.invokeLater(() -> {
             dispose();
-            new referencesForm().setVisible(true);
+            JOptionPane.showMessageDialog(null, "You finished!", "You Finished", JOptionPane.INFORMATION_MESSAGE);
         });
     }
 
@@ -218,7 +230,6 @@ public class workExperienceForm extends JFrame {
             nextPage(); // Proceed if all fields are filled
         }
     }
-
 //    private void submitAndNextPage() {
 //        errorMessages.setLength(0); // Clear previous error messages
 //        Component component = tabbedPane.getComponentAt(1);
