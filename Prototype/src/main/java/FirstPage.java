@@ -839,8 +839,9 @@ public class FirstPage extends Application {
         for (Component component : page1Frame.getContentPane().getComponents()) {
             if (component instanceof JTextField) {
                 ((JTextField) component).setText(""); // Clear text fields
-            } else if (component instanceof JFormattedTextField) {
-                ((JFormattedTextField) component).setText(""); // Clear formatted text fields
+                if (component instanceof JFormattedTextField) {
+                    ((JFormattedTextField) component).setText(""); // Clear formatted text fields
+                }
             } else if (component instanceof JRadioButton) {
                 ((JRadioButton) component).setSelected(false); // Deselect radio buttons
             } else if (component instanceof JCheckBox) {
