@@ -81,10 +81,7 @@ public class workExperienceForm extends JFrame {
         setVisible(true);
         setLocationRelativeTo(null);
     }
-
-    public static void main(String[] args) {
-        new workExperienceForm();
-    }
+    
 
     /* This function is used to populate the interface
      *  with the fields to enter information */
