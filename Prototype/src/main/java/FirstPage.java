@@ -492,8 +492,7 @@ public class FirstPage extends Application {
         JButton submitButton = new JButton("Next Page");
 
         // Set up frame
-        ImageIcon icon = new ImageIcon("D:\\UI-Prototype\\Prototype\\Icon\\UNFinshedBusiness.png");
-        page1Frame.setIconImage(icon.getImage());
+        page1Frame.setIconImage(UIPrototypeMainClass.getIcon());
 //        page1Frame.setLayout(new GridBagLayout());
         page1Frame.setLocationRelativeTo(null);
 
@@ -823,7 +822,7 @@ public class FirstPage extends Application {
      * </p>
      */
     private void processValidFormData() {
-        new refrencesForm();
+        new referencesForm();
     }
 
     /**
