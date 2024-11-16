@@ -2,14 +2,38 @@ import com.github.lgooddatepicker.components.DatePicker;
 import com.github.lgooddatepicker.components.DatePickerSettings;
 
 import javax.swing.*;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
 import java.awt.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Locale;
 
 public class workExperienceForm extends JFrame {
-
-    //JPanels
+    /**
+     * <ul>
+     * <li>{@code mainPanel} the panel that holds everything</li>
+     * <li>{@code experiencePanel} the panel that is duplicated</li>
+     * <li>{@code headerButtonPanel} the panel that holds the buttons at the top of the panel(add experience field and delete the most recent experience</li>
+     * <li>{@code footerButtonPanel} the panel that holds the buttons at the bottom of the panel(nextPage)</li>
+     * <br>
+     * <br>
+     *
+     * <li>{@code addExperienceButton} the button that duplicates the {@systemProperty experiencePanel}</li>
+     * <li>{@code clearMostRecentButton} the button that clears the most recent {@systemProperty experiencePanel}. This deletes the entire panel.</li>
+     * <li>{@code nextPage}the button that goes to the next page. Before this successfully moves to the next page, it first ensures that all fields are filled in. If a field is missing, it informs the user which field is missing and does not advance to the next page.</li>
+     * <br>
+     * <br>
+     *
+     * <li>{@code headerTitle} the title of the panel</li>
+     * <li>{@code experienceFieldList} an array that holds all of the {@systemProperty experienceField} to make it easier to delete the latest one.</li>
+     * <li>{@code errorMessages} a stringBuilder that is assembled when you click {@systemProperty nextPage}. It informs the user what is missing or improperly filled.</li>
+     * <li>{@code entryNumber} the number entry you are on. This increments as you add {@systemProperty experienceField}(using the {@systemProperty addExperienceButton} and decrements as you remove {@systemProperty experienceField}(using the {@systemProperty clearMostRecentButton} Also used to label each entry panel sequentially.</li>
+     *
+     * </ul>
+     **/
     private final JPanel mainPanel;
     private final JPanel experiencePanel;
     private final JPanel headerButtonPanel;
@@ -27,8 +51,13 @@ public class workExperienceForm extends JFrame {
     private final StringBuilder errorMessages = new StringBuilder();
     private int entryNumber = 0; //used to keep track of fields created
 
+    /**
+     * Constructor for the {@code workExperienceForm} class.
+     * Initializes the JFrame, sets up all panels, buttons, and action listeners,
+     * and displays the GUI.
+     */
     public workExperienceForm() {
-        // Set up main frame
+        // Set up the main frame (icon, title, size, etc.)
         setIconImage(UIPrototypeMainClass.getIcon());
         setTitle("Work Experience Form");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -37,40 +66,38 @@ public class workExperienceForm extends JFrame {
         JLabel headerLabel = new JLabel("Employment Information", JLabel.CENTER);
         headerLabel.setFont(new Font("Arial", Font.BOLD, 24));
 
-        // Main panel to hold all components
+        // Create the main panel with a BorderLayout for structured layout
         mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
 
-        // Panel to hold dynamic experience fields
+        // Panel to hold dynamically added work experience fields
         experiencePanel = new JPanel();
         experiencePanel.setLayout(new BoxLayout(experiencePanel, BoxLayout.Y_AXIS));
-
-        // Scroll pane for experience fields
         JScrollPane scrollPane = new JScrollPane(experiencePanel);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
 
-        //initializing all components for header
+        // Initialize header components
         clearMostRecentButton = new JButton("Clear Most Recent Entry");
         addExperienceButton = new JButton("Add Work Experience");
-
         headerTitle = new JLabel("Work Experience");
         headerTitle.setFont(new Font("Arial", Font.BOLD, 24));
         headerTitle.setHorizontalAlignment(JLabel.CENTER); // Center the text within the label
         headerTitle.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
+        // Header panel to house the add/clear buttons and title
         headerButtonPanel = new JPanel(new BorderLayout());
         headerButtonPanel.add(addExperienceButton, BorderLayout.WEST);
         headerButtonPanel.add(headerTitle, BorderLayout.CENTER);
         headerButtonPanel.add(clearMostRecentButton, BorderLayout.EAST);
         mainPanel.add(headerButtonPanel, BorderLayout.NORTH);
 
+        // Initialize footer components
         nextPage = new JButton("Next Page");
         footerButtonPanel = new JPanel(new BorderLayout());
         footerButtonPanel.add(nextPage, BorderLayout.EAST);
         mainPanel.add(footerButtonPanel, BorderLayout.SOUTH);
 
 
-        // Action listeners for buttons
+        // Attach button action listeners
         addExperienceButton.addActionListener(_ -> addExperienceFields());
 
         clearMostRecentButton.addActionListener(_ -> clearMostRecentExperienceField());
@@ -82,11 +109,24 @@ public class workExperienceForm extends JFrame {
         setLocationRelativeTo(null);
     }
 
-    /* This function is used to populate the interface
-     *  with the fields to enter information */
+    /**
+     * Adds a new set of work experience fields to the form.
+     * These fields include
+     * <ul>
+     * <li>{@code employerField} the field to put the name of your employer. This is the companies name, not your bosses name.</li>
+     * <li>{@code jobTitle} official title of the position that you have or had</li>
+     * <li>{@code start date}date that you started working the job</li>
+     * <li>{@code end date}date that you were no longer employed at work. This can be removed using the {@code currentlyWorking} since not everyone is currently out of the job.</li>
+     * <li>{@code address}address of the company that you worked for</li>
+     * <li>{@code city}city of the company that you worked for</li>
+     * <li>{@code zipCode}zipcode of the company that you worked for</i>
+     * <li>{@code stateDropdown}state that the company is in that you worked for</li>
+     * <li>{@code Currently Working}whether or not you are actively working in the job</li>
+     * Each new set is wrapped in a titled border for clarity.
+     */
     private void addExperienceFields() {
-        entryNumber++;
-
+        entryNumber++; // Increment the entry number for labeling
+        // Create a new panel for this entry
         JPanel experienceFields = new JPanel();
         experienceFields.setName("Job " + entryNumber);
         experienceFields.setLayout(new GridBagLayout());
@@ -163,13 +203,41 @@ public class workExperienceForm extends JFrame {
         experienceFields.add(cityField, gbc);
         cityField.setName("City");
 
+
         gbc.gridx = 0; // Column 0
         gbc.gridy = 3; // Row 3
+        // Create a JTextField for entering a ZIP code
         JTextField zipField = new JTextField(5);
+        // Set a titled border to visually indicate the field's purpose
         zipField.setBorder(BorderFactory.createTitledBorder("Zip"));
         experienceFields.add(zipField, gbc);
         zipField.setName("Zip");
+        // Add a DocumentFilter to the ZIP field to restrict input
+        ((AbstractDocument) zipField.getDocument()).setDocumentFilter(new DocumentFilter() {
+            /**
+             * Called when text is inserted into the text field.
+             * Ensures only numeric input and a maximum length of 5 characters.
+             */
+            @Override
+            public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
+                // Allow insertion only if input is numeric and length remains <= 5
+                if ((fb.getDocument().getLength() + string.length()) <= 5 && string.matches("\\d*")) {
+                    super.insertString(fb, offset, string, attr);
+                }
+            }
 
+            /**
+             * Called when text in the field is replaced.
+             * Ensures only numeric input and a maximum length of 5 characters.
+             */
+            @Override
+            public void replace(FilterBypass fb, int offset, int length, String string, AttributeSet attrs) throws BadLocationException {
+                // Allow replacement only if input is numeric and length remains <= 5
+                if ((fb.getDocument().getLength() + string.length() - length) <= 5 && string.matches("\\d*")) {
+                    super.replace(fb, offset, length, string, attrs);
+                }
+            }
+        });
         // State Dropdown
         gbc.gridx = 1; // Column 1
         gbc.gridy = 3; // Same row as zip
@@ -209,66 +277,128 @@ public class workExperienceForm extends JFrame {
 
     }
 
+    /**
+     * Transitions to the next page or completes the workflow by displaying a completion message
+     * and exiting the application.
+     */
     public void nextPage() {
+        // Schedule the following task to run on the Event Dispatch Thread (EDT)
         SwingUtilities.invokeLater(() -> {
+            // Dispose of the current frame to release resources and remove it from the screen
             dispose();
-            JOptionPane.showMessageDialog(null, "You finished!", "You Finished", JOptionPane.INFORMATION_MESSAGE);
+
+            // Show a dialog box with a message indicating the user has finished
+            JOptionPane.showMessageDialog(
+                    null,                                // Parent component (null centers it on the screen)
+                    "You finished!",                    // Message to display
+                    "You Finished",                     // Title of the dialog box
+                    JOptionPane.INFORMATION_MESSAGE     // Type of message (informational)
+            );
+
+            // Terminate the application with a status code of 0 (indicates normal exit)
+            System.exit(0);
         });
     }
 
+
+    /**
+     * Validates all fields within the list of experience panels.
+     * <p>
+     * Each panel is iterated, and its components (text fields, combo boxes, date pickers) are checked for validity.
+     * If any field is invalid, a descriptive error message is added to the errorMessages StringBuilder.
+     * If errors are found, a JOptionPane displays the errors; otherwise, the workflow proceeds to the next page.
+     * {@link #errorMessages}
+     * </p>
+     */
     private void validateFields() {
+        // Clear previous error messages
         errorMessages.setLength(0);
 
+        // Iterate through all experience panels
         for (JPanel panel : experienceFieldsList) {
             for (Component component : panel.getComponents()) {
-                String panelName = panel.getName();
+                String panelName = panel.getName(); // Get the name of the current panel
                 if (component instanceof JTextField textField) {
+                    // Validate text fields
                     if (textField.getText().trim().isEmpty()) {
                         validateTextField(textField, panelName);
                     }
                 } else if (component instanceof JComboBox<?> comboBox) {
+                    // Validate dropdowns
                     validateDropdown(comboBox, panelName);
                 } else if (component instanceof DatePicker datePicker) {
+                    // Validate date pickers
                     validateDatePicker(datePicker, panelName);
                 }
             }
         }
 
+        // Display error messages if any exist; otherwise, proceed to the next page
         if (!errorMessages.toString().isEmpty()) {
-            JOptionPane.showMessageDialog(this, errorMessages, "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, errorMessages.toString(), "Error", JOptionPane.ERROR_MESSAGE);
         } else {
-            nextPage(); // Proceed if all fields are filled
-        }
-    }
-
-    private void validateDatePicker(DatePicker datePicker, String panelName) {
-        if (datePicker.getName().equals("End") && !datePicker.isVisible()) {
-            //do nothing
-        } else {
-            if (datePicker.getText().isEmpty()) {
-                errorMessages.append(datePicker.getName()).append(" Date must be selected for ").append(panelName).append("!\n");
-            }
-        }
-    }
-
-    private void validateDropdown(JComboBox<?> dropdown, String panelName) {
-        if (dropdown.getSelectedIndex() == 0) { // Customize for your dropdown
-            errorMessages.append(dropdown.getName()).append(" must be selected for ").append(panelName).append("!\n");
+            nextPage(); // Proceed if all fields are valid
         }
     }
 
     /**
-     * Validates a standard JTextField to ensure it is not empty.
+     * Validates a DatePicker field to ensure a date is selected.
      * <p>
-     * If the field is empty and its name is not "Middle Name," an error message is appended to the errorMessages StringBuilder.
-     * Additionally, if the field is an email field, it validates the format against a specified regex pattern.
+     * For "End" date fields that are invisible, validation is skipped.
+     * If the field is empty, an error message is added for the corresponding panel.
      * </p>
      *
-     * @param field The JTextField to validate.
+     * @param datePicker The DatePicker to validate.
+     * @param panelName  The name of the panel containing this field.
+     */
+    private void validateDatePicker(DatePicker datePicker, String panelName) {
+        if (datePicker.getName().equals("End") && !datePicker.isVisible()) {
+            // Skip validation for hidden "End" date fields
+            return;
+        }
+        if (datePicker.getText().isEmpty()) {
+            errorMessages.append(datePicker.getName())
+                    .append(" Date must be selected for ")
+                    .append(panelName)
+                    .append("!\n");
+        }
+    }
+
+    /**
+     * Validates a JComboBox dropdown to ensure an item other than the default is selected.
+     * <p>
+     * If the selected index is 0, an error message is added for the corresponding panel.
+     * </p>
+     *
+     * @param dropdown  The JComboBox to validate.
+     * @param panelName The name of the panel containing this dropdown.
+     */
+    private void validateDropdown(JComboBox<?> dropdown, String panelName) {
+        if (dropdown.getSelectedIndex() == 0) { // Check if the default item is selected
+            errorMessages.append(dropdown.getName())
+                    .append(" must be selected for ")
+                    .append(panelName)
+                    .append("!\n");
+        }
+    }
+
+    /**
+     * Validates a JTextField to ensure it is not empty.
+     * <p>
+     * If the field is empty, an error message is appended to the errorMessages StringBuilder
+     * with a reference to the containing panel.
+     * </p>
+     *
+     * @param field     The JTextField to validate.
+     * @param panelName The name of the panel containing this field.
      */
     private void validateTextField(JTextField field, String panelName) {
         if (field.getText().isEmpty()) {
-            errorMessages.append(field.getName()).append(" must be selected for ").append(panelName).append("\n");
+            errorMessages.append(field.getName())
+                    .append(" must be entered for ")
+                    .append(panelName)
+                    .append("\n");
         }
     }
+
 }

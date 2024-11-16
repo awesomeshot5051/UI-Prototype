@@ -33,33 +33,29 @@ public class FirstPage extends Application {
      * <ul>
      *   <li>{@code WIDTH} - The default width of the application window (640 pixels)</li>
      *   <li>{@code HEIGHT} - The default height of the application window (480 pixels)</li>
+     *   <li>{@code regex} - A regular expression for validating email format</li>
+     *   <li>{@code errorMessages} - A StringBuilder for storing error messages during form validation</li>
      *   <li>{@code page1Frame} - The main JFrame container for the form</li>
      *   <li>{@code parent} - The root BorderPane layout container</li>
+     *   <li>{@code phonePanels} - A list of panels for managing multiple phone number fields</li>
+     *   <li>{@code addPhoneButton} - Button to add a new phone number input field</li>
+     *   <li>{@code over18} - Button group for selecting whether the user is over 18</li>
+     *   <li>{@code phoneNumberField} - Formatted text field for phone number input with validation</li>
      *   <li>{@code numberField} - Text field for street number input</li>
      *   <li>{@code streetField} - Text field for street name input</li>
      *   <li>{@code cityField} - Text field for city name input</li>
-     *   <li>{@code stateField} - Text field for state abbreviation input</li>
      *   <li>{@code zipField} - Text field for ZIP code input (limited to 5 digits)</li>
      *   <li>{@code currentAddressLabel} - Label for the address section</li>
-     *   <li>{@code headingLabel} - Main heading label for the form</li>
-     *   <li>{@code firstNameLabel} - Label for first name field</li>
      *   <li>{@code firstName} - Text field for first name input</li>
-     *   <li>{@code lastNameLabel} - Label for last name field</li>
      *   <li>{@code lastName} - Text field for last name input</li>
      *   <li>{@code middleNm} - Checkbox to toggle middle name input visibility</li>
      *   <li>{@code middleNameLabel} - Label for middle name field</li>
      *   <li>{@code middleName} - Text field for middle name input</li>
-     *   <li>{@code phoneNumberLabel} - Label for phone number field</li>
-     *   <li>{@code emailLabel} - Label for email field</li>
      *   <li>{@code email} - Text field for email input</li>
      *   <li>{@code maleRadioButton} - Radio button for male gender selection</li>
      *   <li>{@code femaleJRadioButton} - Radio button for female gender selection</li>
      *   <li>{@code pntsJRadioButton} - Radio button for "prefer not to say" gender option</li>
      *   <li>{@code radioButtonGroup} - Button group for gender selection radio buttons</li>
-     *   <li>{@code weightFormattedTextField} - Formatted text field for weight input</li>
-     *   <li>{@code clearButton} - Button to clear all form fields</li>
-     *   <li>{@code submitButton} - Button to submit form data</li>
-     *   <li>{@code phoneNumberField} - Formatted text field for phone number input with validation</li>
      *   <li>{@code stateDropdown} - Dropdown menu for state selection</li>
      *   <li>{@code yearsAtAdd} - Button group for years at address selection</li>
      *   <li>{@code zeroToFive} - Radio button for 0-5 years at address</li>
@@ -67,8 +63,15 @@ public class FirstPage extends Application {
      *   <li>{@code elevenToTwenty} - Radio button for 11-20 years at address</li>
      *   <li>{@code twentyToThirty} - Radio button for 21-30 years at address</li>
      *   <li>{@code thirtyPlus} - Radio button for 30+ years at address</li>
+     *   <li>{@code contactInfoPanel} - Panel for contact information input</li>
+     *   <li>{@code gbc} - GridBagConstraints used for layout management in the form</li>
+     *   <li>{@code eciPanel} - Panel for managing extra contact information</li>
+     *   <li>{@code contactCount} - Counter to limit the number of contacts that can be added</li>
+     *   <li>{@code addContactButton} - Button to add a new contact information input field</li>
+     *   <li>{@code tabbedPane} - A tabbed pane for organizing different sections of the form</li>
      * </ul>
      */
+
     private static final double WIDTH = 640;
     private static final double HEIGHT = 480;
     private static final String regex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
@@ -77,18 +80,9 @@ public class FirstPage extends Application {
     private final BorderPane parent = new BorderPane();
     private final ArrayList<JPanel> phonePanels = new ArrayList<>();
     private final JButton addPhoneButton = new JButton("Add Phone Number");
-    //    private final String[] states = {"State", "Alabama", "Alaska", "Arizona", "Arkansas", "California",
-//            "Colorado", "Connecticut", "Delaware", "Florida", "Georgia",
-//            "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas",
-//            "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts",
-//            "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana",
-//            "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico",
-//            "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma",
-//            "Oregon", "Pennsylvania", "Rhode Island", "South Carolina",
-//            "South Dakota", "Tennessee", "Texas", "Utah", "Vermont",
-//            "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"};
     private final ButtonGroup over18 = new ButtonGroup();
-    JTextField numberField, streetField, cityField, stateField, zipField;
+    private final JFormattedTextField phoneNumberField = new JFormattedTextField();
+    JTextField numberField, streetField, cityField, zipField;
     private JLabel currentAddressLabel;
     private JTextField firstName;
     private JTextField lastName;
@@ -100,8 +94,6 @@ public class FirstPage extends Application {
     private JRadioButton femaleJRadioButton;
     private JRadioButton pntsJRadioButton;
     private ButtonGroup radioButtonGroup;
-    private JFormattedTextField weightFormattedTextField;
-    private JFormattedTextField phoneNumberField;
     private JComboBox<String> stateDropdown;
     private ButtonGroup yearsAtAdd;
     private JRadioButton zeroToFive;
@@ -111,11 +103,8 @@ public class FirstPage extends Application {
     private JRadioButton thirtyPlus;
     private JPanel contactInfoPanel;
     private GridBagConstraints gbc;
-    //    private JTabbedPane tabbedPane;
-    private JComboBox<String> phoneTypeDropdown;
     private int number = 8;
     private JPanel eciPanel;
-    private JPanel addressPanel;
     private int contactCount = 0; // Counter to limit number of contacts
     private JButton addContactButton;
     private JTabbedPane tabbedPane;
@@ -123,13 +112,27 @@ public class FirstPage extends Application {
     /**
      * Default constructor for FirstPage.
      * Initializes the UI components by calling setupUI().
+     *
+     * <p>This constructor creates a new instance of the FirstPage class, initializing
+     * the {@code errorMessages} StringBuilder for storing validation errors, and
+     * calling the {@code setupUI()} method to set up the user interface.</p>
      */
     FirstPage() {
         errorMessages = new StringBuilder();
         setupUI();
     }
 
-    // Method to check if a button is part of a ButtonGroup
+    /**
+     * Checks if a given {@link JRadioButton} is part of a {@link ButtonGroup}.
+     *
+     * <p>This method iterates through the buttons in the provided {@code ButtonGroup}
+     * and checks if the specified {@code JRadioButton} is included in the group.
+     * It compares the instances of the buttons to determine membership.</p>
+     *
+     * @param button The {@code JRadioButton} to be checked.
+     * @param group  The {@code ButtonGroup} that the button may belong to.
+     * @return {@code true} if the button is part of the group, {@code false} otherwise.
+     */
     private static boolean isButtonInGroup(JRadioButton button, ButtonGroup group) {
         var elements = group.getElements(); // Get enumeration of buttons in the group
         while (elements.hasMoreElements()) {
@@ -140,10 +143,18 @@ public class FirstPage extends Application {
         return false; // Button not found in the group
     }
 
+
     /**
-     * Formats the phone number input using Google's libphonenumber library.
-     * Validates and formats the phone number to international format.
-     * Displays error messages if the number is invalid or cannot be parsed.
+     * Formats and validates the phone number input using Google's libphonenumber library.
+     * <p>
+     * This method takes the raw phone number input, parses it using the libphonenumber library,
+     * and formats it into the international format. It also validates the number to ensure
+     * that it is a valid phone number. If the phone number is invalid or cannot be parsed,
+     * error messages are appended to the provided {@code StringBuilder} for further handling.
+     * </p>
+     *
+     * @param phoneNumber   The {@link JFormattedTextField} containing the raw phone number input.
+     * @param errorMessages The {@link StringBuilder} used to accumulate any error messages.
      */
     private void formatPhoneNumber(JFormattedTextField phoneNumber, StringBuilder errorMessages) {
         String rawNumber = phoneNumber.getText();
@@ -154,18 +165,21 @@ public class FirstPage extends Application {
             Phonenumber.PhoneNumber numberProto = phoneUtil.parse(rawNumber, "US");
 
             if (phoneUtil.isValidNumber(numberProto)) {
+                // Format the number into international format and update the field
                 String formattedNumber = phoneUtil.format(numberProto, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
                 phoneNumber.setValue(formattedNumber);  // Sets formatted value
             } else {
+                // Append error message if the number is invalid
                 if (!errorMessages.toString().contains("Invalid phone number!\n")) {
                     errorMessages.append("Invalid phone number!\n");
                 }
             }
         } catch (NumberParseException e) {
-//            JOptionPane.showMessageDialog(page1Frame, "Error parsing phone number!", "Error", JOptionPane.ERROR_MESSAGE);
+            // Handle parsing exception and append an error message
             errorMessages.append("Error parsing phone number!\n");
         }
     }
+
 
     /**
      * JavaFX start method. Sets up the primary stage and displays the application window.
@@ -266,44 +280,58 @@ public class FirstPage extends Application {
      *   <li>Only one residence duration can be selected</li>
      * </ul>
      */
+    /**
+     * Sets up the complete user interface for a multi-tabbed personal information form.
+     * This method initializes and configures all UI components including panels, input fields,
+     * buttons, and layout managers.
+     */
     private void setupUI() {
-//        page1Frame = new JFrame("Personal Information");
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        tabbedPane = new JTabbedPane(SwingConstants.TOP);
-        JPanel namePanel = new JPanel(new GridBagLayout());
-        contactInfoPanel = new JPanel(new GridBagLayout());
-        JPanel combinedAddressPanel = new JPanel(new GridBagLayout());
+        // Create main frame for personal information (currently commented out)
+        //        page1Frame = new JFrame("Personal Information");
+
+        // Initialize main container panels and layout components
+        JPanel mainPanel = new JPanel(new BorderLayout());  // Main container panel using BorderLayout
+        tabbedPane = new JTabbedPane(SwingConstants.TOP);   // Tab container placed at top of window
+        JPanel namePanel = new JPanel(new GridBagLayout());  // Panel for name-related fields
+        contactInfoPanel = new JPanel(new GridBagLayout());  // Panel for contact information
+        JPanel combinedAddressPanel = new JPanel(new GridBagLayout());  // Panel for address details
+
+        // Configure GridBagConstraints for consistent component layout
         gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(5, 5, 5, 5);  // Add padding around components
+        gbc.anchor = GridBagConstraints.WEST;  // Align components to the left
 
-        // Initialize state selection array
+        // Create header label (initialized but not immediately used)
+        JLabel headingLabel;
 
-        // Initialize UI components in order of appearance
-        // Header
-        JLabel headingLabel = new JLabel("Personal Information");
-
-        // Name section
+        // NAME SECTION SETUP
+        // First Name components
         JLabel firstNameLabel = new JLabel("First Name");
-        firstName = new JTextField(20);
+        firstName = new JTextField(20);  // Text field with width of 20 columns
 
+        // Middle Name components with checkbox toggle
         middleNm = new JCheckBox("Middle name");
         middleNameLabel = new JLabel("Middle Name:");
         middleName = new JTextField(20);
         middleName.setName("Middle Name");
+        // Initially hide middle name components
         middleNameLabel.setVisible(false);
         middleName.setVisible(false);
-        // Add event listeners
+
+        // Add middle name checkbox listener to toggle visibility
         middleNm.addActionListener(_ -> {
             boolean isChecked = middleNm.isSelected();
             middleNameLabel.setVisible(isChecked);
             middleName.setVisible(isChecked);
-            page1Frame.pack();
+            page1Frame.pack();  // Resize frame to accommodate changes
         });
 
+        // Last Name components
         JLabel lastNameLabel = new JLabel("Last Name");
         lastName = new JTextField(20);
         lastName.setName("Last Name");
+
+        // Layout name components using GridBagLayout
         gbc.gridwidth = 1;
         gbc.gridx = 0;
         gbc.gridy = 1;
@@ -323,7 +351,8 @@ public class FirstPage extends Application {
         gbc.gridx = 1;
         namePanel.add(lastName, gbc);
 
-        // Gender selection
+        // GENDER SELECTION SETUP
+        // Create and group radio buttons for gender selection
         maleRadioButton = new JRadioButton("Male");
         femaleJRadioButton = new JRadioButton("Female");
         pntsJRadioButton = new JRadioButton("Prefer not to say");
@@ -331,6 +360,8 @@ public class FirstPage extends Application {
         radioButtonGroup.add(maleRadioButton);
         radioButtonGroup.add(femaleJRadioButton);
         radioButtonGroup.add(pntsJRadioButton);
+
+        // Add gender components to name panel
         gbc.gridx = 0;
         gbc.gridy = 4;
         namePanel.add(new JLabel("Gender"), gbc);
@@ -341,6 +372,9 @@ public class FirstPage extends Application {
         namePanel.add(femaleJRadioButton, gbc);
         gbc.gridy = 6;
         namePanel.add(pntsJRadioButton, gbc);
+
+        // AGE VERIFICATION SETUP
+        // Create and group radio buttons for age verification
         JRadioButton over18True = new JRadioButton("Yes");
         JRadioButton over18False = new JRadioButton("No");
         over18.add(over18False);
@@ -349,27 +383,20 @@ public class FirstPage extends Application {
         gbc.gridy++;
         namePanel.add(new JLabel("Are you over 18?"), gbc);
         gbc.gridx = 1;
-//        gbc.gridy++;
         namePanel.add(over18True, gbc);
         gbc.gridy++;
         namePanel.add(over18False, gbc);
 
-
+        // CONTACT INFORMATION PANEL SETUP
         contactInfoPanel = new JPanel(new GridBagLayout());
-//        gbc = new GridBagConstraints();
-//        gbc.insets = new Insets(5, 5, 5, 5);
-//        gbc.anchor = GridBagConstraints.WEST;
 
-        // Heading Label
+        // Add heading for contact information section
         gbc.gridy = 0;
         gbc.gridx = 0;
         headingLabel = new JLabel("Contact Information");
         contactInfoPanel.add(headingLabel, gbc);
 
-
-        // Add phone button
-
-        // Email field
+        // Email field setup
         gbc.gridx = 0;
         gbc.gridy = 1;
         JLabel emailLabel = new JLabel("Email");
@@ -380,31 +407,29 @@ public class FirstPage extends Application {
         contactInfoPanel.add(email, gbc);
         gbc.gridx = 1;
         gbc.gridy++;
-        // Primary phone number field and label
-        addPhoneField(false, contactInfoPanel, addPhoneButton);
+
+        // Phone number fields setup
+        addPhoneField(false, contactInfoPanel, addPhoneButton);  // Add initial phone field
         gbc.gridy++;
         addPhoneButton.setToolTipText("Max 8 additions allowed");
+
+        // Add phone button listener for dynamic phone field addition
         addPhoneButton.addActionListener(_ -> {
             addPhoneField(true, contactInfoPanel, addPhoneButton);
+            // Update tooltip based on remaining allowed additions
             if (number <= 0) {
                 addPhoneButton.setToolTipText("No more additions allowed!");
             } else if (number >= 8) {
                 addPhoneButton.setToolTipText("Max " + number + " additions allowed");
             } else {
-//                if (number >= 4) {
-//                    addScrollPane(contactInfoPanel);
-//                }
                 addPhoneButton.setToolTipText("You have " + number + " additions left");
             }
             page1Frame.pack();
         });
         contactInfoPanel.add(addPhoneButton, gbc);
 
-//        JScrollPane scrollPane = new JScrollPane(contactInfoPanel);
-//        scrollPane.setPreferredSize(new Dimension((int) WIDTH, (int) HEIGHT));
-//        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-//        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        // Address components
+        // ADDRESS COMPONENTS SETUP
+        // Initialize address input fields
         currentAddressLabel = new JLabel("Current Address:");
         numberField = new JTextField(5);
         numberField.setName("Street Number");
@@ -412,44 +437,43 @@ public class FirstPage extends Application {
         streetField.setName("Street Name");
         cityField = new JTextField(10);
         cityField.setName("City");
-        stateDropdown = UIPrototypeMainClass.getStates();
+        stateDropdown = UIPrototypeMainClass.getStates();  // Get state selection dropdown
         zipField = new JTextField(5);
         zipField.setName("Zip Code");
-        // Create a new panel for the address and years sections
 
-//        GridBagConstraints gbc = new GridBagConstraints();
-//        gbc.insets = new Insets(5, 5, 5, 5);
+        // Configure GridBagConstraints for address panel
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-// Row 1: Street Number
+        // Layout address components
+        // Street Number row
         gbc.gridx = 0;
         gbc.gridy = 0;
         combinedAddressPanel.add(new JLabel("Street Number:"), gbc);
         gbc.gridx = 1;
         combinedAddressPanel.add(numberField, gbc);
 
-// Row 2: Street Name
+        // Street Name row
         gbc.gridx = 0;
         gbc.gridy = 1;
         combinedAddressPanel.add(new JLabel("Street Name:"), gbc);
         gbc.gridx = 1;
         combinedAddressPanel.add(streetField, gbc);
 
-// Row 3: City
+        // City row
         gbc.gridx = 0;
         gbc.gridy = 2;
         combinedAddressPanel.add(new JLabel("City:"), gbc);
         gbc.gridx = 1;
         combinedAddressPanel.add(cityField, gbc);
 
-        // Row 4: ZIP Code
+        // ZIP Code row
         gbc.gridx = 0;
         gbc.gridy = 3;
         combinedAddressPanel.add(new JLabel("ZIP:"), gbc);
         gbc.gridx = 1;
         combinedAddressPanel.add(zipField, gbc);
 
-        // Row 5: State Dropdown
+        // State dropdown row
         gbc.gridx = 0;
         gbc.gridy = 4;
         combinedAddressPanel.add(new JLabel("State:"), gbc);
@@ -457,20 +481,23 @@ public class FirstPage extends Application {
         stateDropdown.setName("State");
         combinedAddressPanel.add(stateDropdown, gbc);
 
-// Row 6: Years at Address
+        // YEARS AT ADDRESS SECTION
+        // Create panel for years radio buttons
         JPanel yearsPanel = new JPanel(new GridLayout(1, 5, 5, 5));
         zeroToFive = new JRadioButton("0-5");
         sixToTen = new JRadioButton("6-10");
         elevenToTwenty = new JRadioButton("11-20");
         twentyToThirty = new JRadioButton("21-30");
         thirtyPlus = new JRadioButton("30+");
+
+        // Add radio buttons to panel
         yearsPanel.add(zeroToFive);
         yearsPanel.add(sixToTen);
         yearsPanel.add(elevenToTwenty);
         yearsPanel.add(twentyToThirty);
         yearsPanel.add(thirtyPlus);
 
-// Group radio buttons
+        // Group years radio buttons
         yearsAtAdd = new ButtonGroup();
         yearsAtAdd.add(zeroToFive);
         yearsAtAdd.add(sixToTen);
@@ -478,32 +505,34 @@ public class FirstPage extends Application {
         yearsAtAdd.add(twentyToThirty);
         yearsAtAdd.add(thirtyPlus);
 
+        // Add years section to address panel
         gbc.gridx = 0;
         gbc.gridy = 5;
-        gbc.gridwidth = 2;  // Span across both label and field columns
+        gbc.gridwidth = 2;  // Span across both columns
         combinedAddressPanel.add(new JLabel("Years at Address:"), gbc);
         gbc.gridy = 6;
         combinedAddressPanel.add(yearsPanel, gbc);
 
-//        yearsPanel.add(yearsAtAdd);
-
-        // Action buttons
+        // ACTION BUTTONS SETUP
         JButton clearButton = new JButton("Clear");
         JButton submitButton = new JButton("Next Page");
 
-        // Set up frame
+        // Frame setup (commented out setIconImage call)
         page1Frame.setIconImage(UIPrototypeMainClass.getIcon());
-//        page1Frame.setLayout(new GridBagLayout());
+        //        page1Frame.setLayout(new GridBagLayout());
         page1Frame.setLocationRelativeTo(null);
 
-
+        // Add button listeners
         submitButton.addActionListener(_ -> submitAndNextPage());
         clearButton.addActionListener(_ -> clearForm());
+
+        // Create button panel
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(clearButton);
         buttonPanel.add(submitButton);
 
-        // Set up ZIP code validation
+        // ZIP CODE VALIDATION
+        // Add document filter to restrict ZIP input to 5 digits
         ((AbstractDocument) zipField.getDocument()).setDocumentFilter(new DocumentFilter() {
             public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
                 if ((fb.getDocument().getLength() + string.length()) <= 5 && string.matches("\\d*")) {
@@ -517,6 +546,9 @@ public class FirstPage extends Application {
                 }
             }
         });
+
+        // STREET NUMBER VALIDATION
+        // Add document filter to restrict street number input to 7 digits
         ((AbstractDocument) numberField.getDocument()).setDocumentFilter(new DocumentFilter() {
             public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
                 if ((fb.getDocument().getLength() + string.length()) <= 7 && string.matches("\\d*")) {
@@ -531,41 +563,40 @@ public class FirstPage extends Application {
             }
         });
 
-        // Main panel and layout adjustments
-        page1Frame.setLayout(new BorderLayout(10, 10));
-//        page1Frame.add(headingLabel, BorderLayout.NORTH);
-
-//        gbc.gridx = 0;
-//        gbc.gridy++;
+        // EMERGENCY CONTACT SETUP
+        // Reset GridBagConstraints for emergency contact panel
         gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
+
+        // Create emergency contact panel
         eciPanel = new JPanel(new GridBagLayout());
         gbc.gridy = 0;
         gbc.gridx = 0;
+
+        // Add contact button setup
         addContactButton = new JButton("Add contact");
         addContactButton.addActionListener(_ -> {
             if (++contactCount > 2) {
                 addScrollPane(eciPanel);
             }
-//            createEmergencyContactPanel(true, eciPanel);
         });
 
-//        createEmergencyContactPanel(false, eciPanel);
         gbc.gridy++;
         eciPanel.add(addContactButton, gbc);
 
-//        tabbedPane.addTab("Name and number", scrollPane);
+
+        // Add tabs to tabbed pane
         tabbedPane.addTab("General Information", namePanel);
         tabbedPane.addTab("Contact Information", contactInfoPanel);
         tabbedPane.addTab("Address", combinedAddressPanel);
-//        tabbedPane.addTab("Emergency Contact Information", scrollPane);
+
+        // Add components to main panel
         mainPanel.add(tabbedPane, BorderLayout.CENTER);
 
-        // Adding components in a more organized manner
-//        mainPanel.add(tabbedPane, BorderLayout.CENTER);
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
+        // FINAL FRAME SETUP
         page1Frame.add(tabbedPane, BorderLayout.NORTH);
         page1Frame.add(mainPanel, BorderLayout.CENTER);
         page1Frame.setSize((int) WIDTH, (int) HEIGHT);
@@ -573,15 +604,28 @@ public class FirstPage extends Application {
         page1Frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         page1Frame.setLocationRelativeTo(null);
         page1Frame.setVisible(true);
-//        tabbedPane.list();
+
+        // Set name property for first name field
         firstName.setName("First Name");
     }
 
+    /**
+     * Adds a scroll pane to the given panel, allowing the content to scroll vertically
+     * if it exceeds the available space.
+     *
+     * @param namePanel The panel to be wrapped in a JScrollPane for scrolling.
+     */
     private void addScrollPane(JPanel namePanel) {
+        // Create a new JScrollPane with the given panel to allow scrolling
         JScrollPane scrollPane = new JScrollPane(namePanel);
+
+        // Set the preferred size for the scroll pane, using constants for WIDTH and HEIGHT
         scrollPane.setPreferredSize(new Dimension((int) WIDTH, (int) HEIGHT));
+
+        // Set the vertical scrollbar policy to allow scrolling only when necessary
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
     }
+
 
     /**
      * Adds a phone field to the specified JPanel, optionally allowing for
@@ -822,44 +866,77 @@ public class FirstPage extends Application {
      * </p>
      */
     private void processValidFormData() {
-        new referencesForm();
-        page1Frame.dispose();
+        SwingUtilities.invokeLater(() -> {
+            // Close the current window (this form)
+            page1Frame.dispose();
+            // Create a new instance of the referencesForm and make it visible
+            new referencesForm().setVisible(true);
+        });
     }
 
     /**
-     * Clears all form fields and resets selections.
-     * This includes:
-     * - Clearing all text fields
-     * - Resetting radio button selections
-     * - Unchecking checkboxes
-     * - Resetting the state dropdown to default
-     * - Clearing the phone number field
+     * Clears all fields across all tabs and panels in the frame.
+     * Iterates through all components recursively to ensure every field is reset to its default state.
+     *
+     * @param panel The parent panel to clear (can include nested panels).
      */
-    private void clearForm() {
-        // Iterate through each component in page1Frame
-        for (Component component : page1Frame.getContentPane().getComponents()) {
-            if (component instanceof JTextField) {
-                ((JTextField) component).setText(""); // Clear text fields
-                if (component instanceof JFormattedTextField) {
-                    ((JFormattedTextField) component).setText(""); // Clear formatted text fields
+    private void clearComponents(JPanel panel) {
+        for (Component comp : panel.getComponents()) {
+            if (comp instanceof JTextField) {
+                ((JTextField) comp).setText(""); // Clear text fields
+                if (comp instanceof JFormattedTextField) {
+                    ((JFormattedTextField) comp).setText(""); // Clear formatted text fields
                 }
-            } else if (component instanceof JRadioButton) {
-                ((JRadioButton) component).setSelected(false); // Deselect radio buttons
-            } else if (component instanceof JCheckBox) {
-                ((JCheckBox) component).setSelected(false); // Deselect checkboxes
+            } else if (comp instanceof JRadioButton) {
+                ((JRadioButton) comp).setSelected(false); // Deselect radio buttons
+            } else if (comp instanceof JCheckBox) {
+                ((JCheckBox) comp).setSelected(false); // Deselect checkboxes
+            } else if (comp instanceof JComboBox<?> dropdown) {
+                if (dropdown.getSelectedIndex() != 0) {
+                    dropdown.setSelectedIndex(0); // Reset dropdown to the default selection
+                }
+            } else if (comp instanceof JPanel) {
+                clearComponents((JPanel) comp); // Recursive call for nested panels
             }
         }
-        // Clear button groups separately
-        if (radioButtonGroup != null && yearsAtAdd != null) {
-            radioButtonGroup.clearSelection();
-            yearsAtAdd.clearSelection();// Clear radio button selection
+    }
+
+    /**
+     * Clears all fields across every tab in the frame.
+     * Iterates through all tabs and their respective content panels.
+     */
+    private void clearForm() {
+        // Iterate through all tabs in the frame
+        for (Component comp : page1Frame.getContentPane().getComponents()) {
+            if (comp instanceof JTabbedPane tabbedPane) {
+                for (int i = 0; i < tabbedPane.getTabCount(); i++) {
+                    Component tab = tabbedPane.getComponentAt(i);
+                    if (tab instanceof JPanel) {
+                        clearComponents((JPanel) tab); // Clear components in the tab
+                    }
+                }
+            } else if (comp instanceof JPanel) {
+                clearComponents((JPanel) comp); // Clear components in the main panel (if any)
+            }
         }
-        if (!phoneNumberField.getText().isBlank() || !phoneNumberField.getText().isEmpty()) {
+
+        // Clear button groups separately
+        if (radioButtonGroup != null) {
+            radioButtonGroup.clearSelection();
+        }
+        if (yearsAtAdd != null) {
+            yearsAtAdd.clearSelection();
+        }
+        over18.clearSelection();
+
+        // Clear the phone number field, if applicable
+        if (phoneNumberField != null && !phoneNumberField.getText().isEmpty()) {
             phoneNumberField.setText("");
         }
-        if (!Objects.equals(stateDropdown.getSelectedItem(), "State")) {
-            stateDropdown.setSelectedItem("State");
 
+        // Reset the state dropdown to its default value, if applicable
+        if (stateDropdown != null && !Objects.equals(stateDropdown.getSelectedItem(), "State")) {
+            stateDropdown.setSelectedItem("State");
         }
     }
 }
