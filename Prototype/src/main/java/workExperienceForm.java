@@ -287,16 +287,8 @@ public class workExperienceForm extends JFrame {
             // Dispose of the current frame to release resources and remove it from the screen
             dispose();
 
-            // Show a dialog box with a message indicating the user has finished
-            JOptionPane.showMessageDialog(
-                    null,                                // Parent component (null centers it on the screen)
-                    "You finished!",                    // Message to display
-                    "You Finished",                     // Title of the dialog box
-                    JOptionPane.INFORMATION_MESSAGE     // Type of message (informational)
-            );
-
-            // Terminate the application with a status code of 0 (indicates normal exit)
-            System.exit(0);
+            //Goes to End User License Agreement page
+            new EULA();
         });
     }
 
