@@ -3,7 +3,7 @@ import java.awt.*;
 
 public class EULA {
     private static final int WIDTH = 640;
-    private static final int HEIGHT = 480;
+    private static final int HEIGHT = 420;
 
     public EULA() {
         JFrame frame = new JFrame("EULA");
@@ -14,16 +14,17 @@ public class EULA {
         main.setViewportView(eula);
 
         JTextField signature = new JTextField();
-        JTextArea signatureText = new JTextArea("By e-signing your name and checking the box, \nyou are acknowledging the agreement above.\nThis e-signature is legally-binding");
-        signatureText.setEditable(false);
-        signatureText.setLineWrap(true);
-        signatureText.setWrapStyleWord(true);
-        Dimension dimension = new Dimension(200, 25);
+        //        signatureText.setEditable(false);
+//        signatureText.setLineWrap(true);
+//        signatureText.setWrapStyleWord(true);
+        Dimension dimension = new Dimension(200, 5);
         signature.setPreferredSize(dimension);
         frame.add(main, BorderLayout.NORTH);
         frame.add(signature, BorderLayout.CENTER);
-        frame.add(signatureText, BorderLayout.SOUTH);
-
+//        frame.add(signatureText, BorderLayout.SOUTH);
+        String signatureText = "<html>By e-signing your name and checking the box, you are acknowledging the agreement above.<br>This e-signature is legally-binding</html>";
+        JCheckBox signatureCheckBox = new JCheckBox(signatureText);
+        frame.add(signatureCheckBox, BorderLayout.SOUTH);
         frame.setSize(WIDTH, HEIGHT);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setLocationRelativeTo(null);
